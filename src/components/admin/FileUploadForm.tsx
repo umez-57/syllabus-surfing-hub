@@ -28,7 +28,11 @@ interface UploadFormData {
   file: FileList;
 }
 
-export const FileUploadForm = () => {
+interface FileUploadFormProps {
+  onClose: () => void;
+}
+
+export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
 
@@ -112,6 +116,7 @@ export const FileUploadForm = () => {
       });
 
       form.reset();
+      onClose();
     } catch (error) {
       console.error('Upload error:', error);
       toast({
@@ -199,9 +204,14 @@ export const FileUploadForm = () => {
           )}
         />
 
-        <Button type="submit" disabled={isUploading}>
-          {isUploading ? "Uploading..." : "Upload Syllabus"}
-        </Button>
+        <div className="flex justify-end gap-4">
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isUploading}>
+            {isUploading ? "Uploading..." : "Upload Syllabus"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
