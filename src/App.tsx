@@ -16,14 +16,38 @@ const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // First, clear any existing session
-    const clearExistingSession = async () => {
-      await supabase.auth.signOut();
-      localStorage.removeItem('supabase.auth.token');
-      console.log("Cleared existing session");
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          return;
+        }
+
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("email", session.user.email)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
+        setIsAdmin(profile?.role === "admin");
+      } catch (error) {
+        console.error("Error in auth check:", error);
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+      }
     };
 
-    clearExistingSession();
+    checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
@@ -46,7 +70,6 @@ const App = () => {
             console.error("Error fetching profile:", error);
             setIsAuthenticated(false);
             setIsAdmin(false);
-            await supabase.auth.signOut();
             return;
           }
 
@@ -56,7 +79,6 @@ const App = () => {
           console.error("Error in auth state change:", error);
           setIsAuthenticated(false);
           setIsAdmin(false);
-          await supabase.auth.signOut();
         }
       } else {
         setIsAuthenticated(false);
