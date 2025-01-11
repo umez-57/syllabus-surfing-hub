@@ -92,16 +92,18 @@ export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
       formData.append('courseCode', data.courseCode);
       formData.append('departmentId', data.departmentId);
 
-      console.log('Sending upload request with data:', {
-        title: data.title,
-        courseCode: data.courseCode,
-        departmentId: data.departmentId,
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size
-      });
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to upload files",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      const { data: response, error } = await supabase.functions.invoke('upload-syllabus', {
+      const { error } = await supabase.functions.invoke('upload-syllabus', {
         body: formData,
       });
 

@@ -43,21 +43,6 @@ serve(async (req) => {
       )
     }
 
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      console.error('Invalid file type:', file.type)
-      return new Response(
-        JSON.stringify({ 
-          error: 'Only PDF files are allowed',
-          details: { providedType: file.type }
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
-          status: 400 
-        }
-      )
-    }
-
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -94,15 +79,35 @@ serve(async (req) => {
 
     console.log('File uploaded successfully, inserting metadata')
 
+    // Get the authenticated user's ID from the session
+    const authHeader = req.headers.get('Authorization')?.split('Bearer ')[1]
+    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader)
+
+    if (authError) {
+      console.error('Auth error:', authError)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Authentication failed',
+          details: authError 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 401 
+        }
+      )
+    }
+
     // Insert record into syllabi table
     const { error: dbError } = await supabase
       .from('syllabi')
       .insert({
-        title: title,
+        title,
         course_code: courseCode,
         department_id: departmentId,
         file_path: filePath,
         file_name: sanitizedFileName,
+        uploaded_by: user?.id,
+        type: 'syllabus'
       })
 
     if (dbError) {
