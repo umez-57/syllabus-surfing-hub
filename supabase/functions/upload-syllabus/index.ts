@@ -15,10 +15,12 @@ serve(async (req) => {
     const formData = await req.formData()
     const file = formData.get('file')
     const title = formData.get('title')
-    const courseCode = formData.get('courseCode')
-    const departmentId = formData.get('departmentId')
+    const type = formData.get('type')
+    const department = formData.get('department')
+    const credits = formData.get('credits')
+    const description = formData.get('description')
 
-    if (!file || !title || !courseCode || !departmentId) {
+    if (!file || !title || !type || !department || !credits) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
@@ -30,12 +32,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // Sanitize filename to remove non-ASCII characters
+    // Sanitize filename
     const sanitizedFileName = file.name.replace(/[^\x00-\x7F]/g, '')
     const fileExt = sanitizedFileName.split('.').pop()
     const filePath = `${crypto.randomUUID()}.${fileExt}`
 
-    // Upload file to storage
     const { data: storageData, error: uploadError } = await supabase.storage
       .from('syllabi')
       .upload(filePath, file, {
@@ -50,31 +51,32 @@ serve(async (req) => {
       )
     }
 
-    // Insert record in syllabi table
     const { error: dbError } = await supabase
       .from('syllabi')
       .insert({
         title: title,
-        course_code: courseCode,
-        department_id: departmentId,
+        type: type,
+        department_id: department,
+        credits: parseInt(credits as string),
+        description: description,
         file_path: filePath,
         file_name: sanitizedFileName,
       })
 
     if (dbError) {
-      // If database insert fails, clean up the uploaded file
+      // Clean up the uploaded file if database insert fails
       await supabase.storage
         .from('syllabi')
         .remove([filePath])
 
       return new Response(
-        JSON.stringify({ error: 'Failed to save syllabus metadata', details: dbError }),
+        JSON.stringify({ error: 'Failed to save file metadata', details: dbError }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
 
     return new Response(
-      JSON.stringify({ message: 'Syllabus uploaded successfully', filePath }),
+      JSON.stringify({ message: 'File uploaded successfully', filePath }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
