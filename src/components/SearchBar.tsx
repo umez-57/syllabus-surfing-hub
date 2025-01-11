@@ -4,42 +4,56 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SyllabusCard } from "./SyllabusCard";
+import { useToast } from "@/components/ui/use-toast";
 
 export const SearchBar = () => {
   const [search, setSearch] = useState("");
+  const { toast } = useToast();
 
   const { data: syllabi, isLoading } = useQuery({
     queryKey: ['syllabi', search],
     queryFn: async () => {
-      let query = supabase
-        .from('syllabi')
-        .select(`
-          *,
-          department:departments(name),
-          uploader:profiles(email)
-        `)
-        .order('created_at', { ascending: false });
+      try {
+        let query = supabase
+          .from('syllabi')
+          .select(`
+            *,
+            department:departments(name)
+          `)
+          .order('created_at', { ascending: false });
 
-      if (search) {
-        // Improved search query to better match course codes and titles
-        query = query.or(`
-          course_code.ilike.${search}%,
-          course_code.ilike.%${search}%,
-          title.ilike.%${search}%
-        `);
-      }
+        if (search) {
+          query = query.or(`
+            course_code.ilike.${search}%,
+            course_code.ilike.%${search}%,
+            title.ilike.%${search}%
+          `);
+        }
 
-      const { data, error } = await query;
-      
-      if (error) {
-        console.error('Error fetching syllabi:', error);
-        throw error;
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error('Error fetching syllabi:', error);
+          toast({
+            title: "Error",
+            description: "Failed to fetch syllabi. Please try again.",
+            variant: "destructive",
+          });
+          return [];
+        }
+        
+        console.log('Search results:', data);
+        return data;
+      } catch (error) {
+        console.error('Error in search query:', error);
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
+        return [];
       }
-      
-      console.log('Search results:', data); // Debug log to see what's being returned
-      return data;
     },
-    // Reduce refetch frequency for better performance
     staleTime: 1000 * 60, // 1 minute
   });
 
