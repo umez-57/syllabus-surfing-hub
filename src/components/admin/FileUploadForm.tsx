@@ -89,13 +89,13 @@ export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('title', data.title);
-      formData.append('type', 'syllabus');
-      formData.append('department', data.departmentId);
+      formData.append('courseCode', data.courseCode);
+      formData.append('departmentId', data.departmentId);
 
       console.log('Sending upload request with data:', {
         title: data.title,
-        type: 'syllabus',
-        department: data.departmentId,
+        courseCode: data.courseCode,
+        departmentId: data.departmentId,
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size

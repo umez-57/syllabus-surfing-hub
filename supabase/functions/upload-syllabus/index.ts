@@ -17,28 +17,24 @@ serve(async (req) => {
     const formData = await req.formData()
     const file = formData.get('file') as File
     const title = formData.get('title') as string
-    const type = formData.get('type') as string
-    const department = formData.get('department') as string
-    const credits = formData.get('credits') as string
-    const description = formData.get('description') as string
+    const courseCode = formData.get('courseCode') as string
+    const departmentId = formData.get('departmentId') as string
 
     console.log('Received form data:', {
       title,
-      type,
-      department,
-      credits,
-      description,
+      courseCode,
+      departmentId,
       fileName: file?.name,
       fileType: file?.type,
       fileSize: file?.size
     })
 
-    if (!file || !title || !department) {
+    if (!file || !title || !courseCode || !departmentId) {
       console.error('Missing required fields')
       return new Response(
         JSON.stringify({ 
           error: 'Missing required fields',
-          details: { file: !file, title: !title, department: !department }
+          details: { file: !file, title: !title, courseCode: !courseCode, departmentId: !departmentId }
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
@@ -74,6 +70,7 @@ serve(async (req) => {
 
     console.log('Uploading file to storage:', { filePath, sanitizedFileName })
 
+    // Upload file to storage
     const { data: storageData, error: uploadError } = await supabase.storage
       .from('syllabi')
       .upload(filePath, file, {
@@ -97,14 +94,13 @@ serve(async (req) => {
 
     console.log('File uploaded successfully, inserting metadata')
 
+    // Insert record into syllabi table
     const { error: dbError } = await supabase
       .from('syllabi')
       .insert({
         title: title,
-        type: type || 'syllabus',
-        department_id: department,
-        credits: credits ? parseInt(credits) : null,
-        description: description,
+        course_code: courseCode,
+        department_id: departmentId,
         file_path: filePath,
         file_name: sanitizedFileName,
       })
