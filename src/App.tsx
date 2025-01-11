@@ -16,26 +16,65 @@ const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
-      setIsAuthenticated(!!session);
+    // First, clear any existing session
+    const clearExistingSession = async () => {
+      await supabase.auth.signOut();
+      localStorage.removeItem('supabase.auth.token');
+      console.log("Cleared existing session");
+    };
+
+    clearExistingSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session);
       
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        return;
+      }
+
       if (session?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("email", session.user.email)
-          .maybeSingle();
-        
-        setIsAdmin(profile?.role === "admin");
+        try {
+          const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("email", session.user.email)
+            .single();
+
+          if (error) {
+            console.error("Error fetching profile:", error);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+            await supabase.auth.signOut();
+            return;
+          }
+
+          setIsAuthenticated(true);
+          setIsAdmin(profile?.role === "admin");
+        } catch (error) {
+          console.error("Error in auth state change:", error);
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+          await supabase.auth.signOut();
+        }
       } else {
+        setIsAuthenticated(false);
         setIsAdmin(false);
       }
     });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (isAuthenticated === null) {
-    return null; // Loading state
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
