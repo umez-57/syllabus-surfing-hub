@@ -10,6 +10,7 @@ import { AuthError, AuthApiError } from "@supabase/supabase-js";
 const Auth = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     console.log("Auth component mounted");
@@ -19,6 +20,7 @@ const Auth = () => {
       
       if (event === "SIGNED_IN") {
         console.log("User signed in successfully");
+        setErrorMessage(""); // Clear any error messages on successful sign in
         
         // Check if user is admin
         const { data: profile, error: profileError } = await supabase
@@ -72,6 +74,7 @@ const Auth = () => {
         console.log("Session check error:", error);
         setErrorMessage(getErrorMessage(error));
       }
+      setIsLoading(false);
     };
     
     checkSession();
@@ -95,6 +98,14 @@ const Auth = () => {
     }
     return error.message;
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
