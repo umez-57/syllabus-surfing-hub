@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,29 +19,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 
 interface UploadFormData {
   title: string;
-  type: 'syllabus' | 'notes' | 'other';
-  department: string;
-  credits: string;
-  description: string;
+  courseCode: string;
+  departmentId: string;
   file: FileList;
 }
 
-const DEPARTMENTS = [
-  { id: 'SCOPE', name: 'SCOPE' },
-  { id: 'SENSE', name: 'SENSE' },
-  { id: 'HUM', name: 'HUM' },
-  { id: 'MGMT', name: 'MGMT' },
-];
-
-export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
+export const FileUploadForm = () => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+
   const form = useForm<UploadFormData>();
+
+  const { data: departments } = useQuery({
+    queryKey: ['departments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('departments')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const onSubmit = async (data: UploadFormData) => {
     try {
@@ -80,17 +85,24 @@ export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('title', data.title);
-      formData.append('type', data.type);
-      formData.append('department', data.department);
-      formData.append('credits', data.credits);
-      formData.append('description', data.description);
+      formData.append('type', 'syllabus');
+      formData.append('department', data.departmentId);
 
-      // Use Supabase client to call the Edge Function
+      console.log('Sending upload request with data:', {
+        title: data.title,
+        type: 'syllabus',
+        department: data.departmentId,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size
+      });
+
       const { data: response, error } = await supabase.functions.invoke('upload-syllabus', {
         body: formData,
       });
 
       if (error) {
+        console.error('Upload error:', error);
         throw error;
       }
 
@@ -100,12 +112,11 @@ export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
       });
 
       form.reset();
-      onClose();
     } catch (error) {
       console.error('Upload error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to upload file. Please try again.",
+        description: error.message || "Failed to upload file",
         variant: "destructive",
       });
     } finally {
@@ -114,143 +125,84 @@ export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="syllabus">Syllabus</SelectItem>
-                    <SelectItem value="notes">Notes</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input placeholder="Data Structures and Algorithms" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
+        <FormField
+          control={form.control}
+          name="courseCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Course Code</FormLabel>
+              <FormControl>
+                <Input placeholder="CSE2001" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="departmentId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Department</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <Input placeholder="Enter title" {...field} />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a department" />
+                  </SelectTrigger>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <SelectContent>
+                  {departments?.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="department"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Department</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {DEPARTMENTS.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>
-                        {dept.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="file"
+          render={({ field: { onChange, value, ...field } }) => (
+            <FormItem>
+              <FormLabel>Syllabus File (PDF)</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => onChange(e.target.files)}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="credits"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Credits</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select credits" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {[1, 2, 3, 4].map((credit) => (
-                      <SelectItem key={credit} value={credit.toString()}>
-                        {credit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Enter a short description"
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="file"
-            render={({ field: { onChange, value, ...field } }) => (
-              <FormItem>
-                <FormLabel>File (PDF only)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept=".pdf"
-                    onChange={(e) => onChange(e.target.files)}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex justify-end gap-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isUploading}>
-              {isUploading ? "Uploading..." : "Upload File"}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+        <Button type="submit" disabled={isUploading}>
+          {isUploading ? "Uploading..." : "Upload Syllabus"}
+        </Button>
+      </form>
+    </Form>
   );
 };

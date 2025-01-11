@@ -13,15 +13,16 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Received upload request')
     const formData = await req.formData()
     const file = formData.get('file') as File
-    const title = formData.get('title')
-    const type = formData.get('type')
-    const department = formData.get('department')
-    const credits = formData.get('credits')
-    const description = formData.get('description')
+    const title = formData.get('title') as string
+    const type = formData.get('type') as string
+    const department = formData.get('department') as string
+    const credits = formData.get('credits') as string
+    const description = formData.get('description') as string
 
-    console.log('Received file upload request:', {
+    console.log('Received form data:', {
       title,
       type,
       department,
@@ -32,11 +33,12 @@ serve(async (req) => {
       fileSize: file?.size
     })
 
-    if (!file || !title || !type || !department) {
+    if (!file || !title || !department) {
+      console.error('Missing required fields')
       return new Response(
         JSON.stringify({ 
           error: 'Missing required fields',
-          details: { file: !file, title: !title, type: !type, department: !department }
+          details: { file: !file, title: !title, department: !department }
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
@@ -47,6 +49,7 @@ serve(async (req) => {
 
     // Validate file type
     if (file.type !== 'application/pdf') {
+      console.error('Invalid file type:', file.type)
       return new Response(
         JSON.stringify({ 
           error: 'Only PDF files are allowed',
@@ -98,9 +101,9 @@ serve(async (req) => {
       .from('syllabi')
       .insert({
         title: title,
-        type: type,
+        type: type || 'syllabus',
         department_id: department,
-        credits: parseInt(credits as string),
+        credits: credits ? parseInt(credits) : null,
         description: description,
         file_path: filePath,
         file_name: sanitizedFileName,
