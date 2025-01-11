@@ -19,8 +19,8 @@ const Auth = () => {
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
-          .eq("email", "umeshrockz57@gmail.com")
-          .single();
+          .eq("email", session?.user?.email)
+          .maybeSingle();
         
         if (profile?.role === "admin") {
           navigate("/admin");
@@ -31,6 +31,13 @@ const Auth = () => {
       if (event === "SIGNED_OUT") {
         setErrorMessage("");
       }
+      // Handle authentication errors
+      if (event === "USER_UPDATED" && !session) {
+        const { error } = await supabase.auth.getSession();
+        if (error) {
+          setErrorMessage(getErrorMessage(error));
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -40,13 +47,13 @@ const Auth = () => {
     if (error instanceof AuthApiError) {
       switch (error.code) {
         case "invalid_credentials":
-          return "Invalid email or password. Please check your credentials and try again.";
+          return "Invalid email or password. Please check your credentials or sign up if you don't have an account.";
         case "email_not_confirmed":
           return "Please verify your email address before signing in.";
         case "user_not_found":
-          return "No user found with these credentials.";
+          return "No user found with these credentials. Please sign up first.";
         case "invalid_grant":
-          return "Invalid login credentials.";
+          return "Invalid login credentials. Please check your email and password.";
         default:
           return error.message;
       }
@@ -60,7 +67,7 @@ const Auth = () => {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
           <CardDescription>
-            Enter your credentials to continue
+            Sign in to your account or create a new one
           </CardDescription>
         </CardHeader>
         <CardContent>
