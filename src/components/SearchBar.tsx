@@ -21,7 +21,12 @@ export const SearchBar = () => {
         .order('created_at', { ascending: false });
 
       if (search) {
-        query = query.or(`title.ilike.%${search}%,course_code.ilike.%${search}%`);
+        // Improved search query to better match course codes and titles
+        query = query.or(`
+          course_code.ilike.${search}%,
+          course_code.ilike.%${search}%,
+          title.ilike.%${search}%
+        `);
       }
 
       const { data, error } = await query;
@@ -31,8 +36,11 @@ export const SearchBar = () => {
         throw error;
       }
       
+      console.log('Search results:', data); // Debug log to see what's being returned
       return data;
     },
+    // Reduce refetch frequency for better performance
+    staleTime: 1000 * 60, // 1 minute
   });
 
   return (
