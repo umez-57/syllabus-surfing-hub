@@ -10,17 +10,19 @@ import { AuthError, AuthApiError } from "@supabase/supabase-js";
 const Auth = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     console.log("Auth component mounted");
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session);
+      console.log("Auth state changed:", event);
       
       if (event === "SIGNED_IN") {
         console.log("User signed in successfully");
         setErrorMessage(""); // Clear any error messages on successful sign in
+        setIsLoading(false);
         
         // Check if user is admin
         const { data: profile, error: profileError } = await supabase
@@ -40,6 +42,7 @@ const Auth = () => {
       if (event === "SIGNED_OUT") {
         console.log("User signed out");
         setErrorMessage("");
+        setIsLoading(false);
       }
       // Handle authentication errors
       if (event === "USER_UPDATED" && !session) {
@@ -47,6 +50,7 @@ const Auth = () => {
         if (error) {
           console.log("Auth error:", error);
           setErrorMessage(getErrorMessage(error));
+          setIsLoading(false);
         }
       }
     });
@@ -74,7 +78,7 @@ const Auth = () => {
         console.log("Session check error:", error);
         setErrorMessage(getErrorMessage(error));
       }
-      setIsLoading(false);
+      setIsInitializing(false);
     };
     
     checkSession();
@@ -99,7 +103,7 @@ const Auth = () => {
     return error.message;
   };
 
-  if (isLoading) {
+  if (isInitializing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -122,27 +126,34 @@ const Auth = () => {
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
-          <SupabaseAuth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: "rgb(234, 56, 76)",
-                    brandAccent: "rgba(234, 56, 76, 0.8)",
+          {isLoading ? (
+            <div className="flex justify-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <SupabaseAuth
+              supabaseClient={supabase}
+              appearance={{
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: "rgb(234, 56, 76)",
+                      brandAccent: "rgba(234, 56, 76, 0.8)",
+                    },
                   },
                 },
-              },
-              className: {
-                container: "space-y-4",
-                button: "w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors",
-                input: "w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary/20",
-              },
-            }}
-            theme="default"
-            providers={[]}
-          />
+                className: {
+                  container: "space-y-4",
+                  button: "w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors",
+                  input: "w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary/20",
+                },
+              }}
+              theme="default"
+              providers={[]}
+              onlyThirdPartyProviders={false}
+            />
+          )}
         </CardContent>
       </Card>
     </div>
