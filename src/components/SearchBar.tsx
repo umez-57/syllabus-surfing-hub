@@ -18,15 +18,16 @@ export const SearchBar = () => {
           .from('syllabi')
           .select(`
             *,
-            department:departments(name)
+            department:departments(name),
+            uploader:profiles(email)
           `)
           .order('created_at', { ascending: false });
 
         if (search) {
           query = query.or(`
-            course_code.ilike.${search}%,
             course_code.ilike.%${search}%,
-            title.ilike.%${search}%
+            title.ilike.%${search}%,
+            description.ilike.%${search}%
           `);
         }
 
@@ -43,7 +44,7 @@ export const SearchBar = () => {
         }
         
         console.log('Search results:', data);
-        return data;
+        return data || [];
       } catch (error) {
         console.error('Error in search query:', error);
         toast({
@@ -55,6 +56,8 @@ export const SearchBar = () => {
       }
     },
     staleTime: 1000 * 60, // 1 minute
+    retry: 2,
+    refetchOnWindowFocus: false,
   });
 
   return (
@@ -76,18 +79,19 @@ export const SearchBar = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {syllabi?.map((syllabus) => (
-            <SyllabusCard
-              key={syllabus.id}
-              title={syllabus.title}
-              code={syllabus.course_code}
-              description={syllabus.description || "No description available"}
-              credits={syllabus.credits || 0}
-            />
-          ))}
-          {syllabi?.length === 0 && search && (
+          {syllabi && syllabi.length > 0 ? (
+            syllabi.map((syllabus) => (
+              <SyllabusCard
+                key={syllabus.id}
+                title={syllabus.title}
+                code={syllabus.course_code}
+                description={syllabus.description || "No description available"}
+                credits={syllabus.credits || 0}
+              />
+            ))
+          ) : (
             <div className="col-span-full text-center text-gray-500">
-              No syllabi found matching your search.
+              {search ? "No syllabi found matching your search." : "Start typing to search for syllabi."}
             </div>
           )}
         </div>
