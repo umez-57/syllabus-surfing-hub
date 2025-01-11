@@ -1,8 +1,49 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check initial auth state
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+      
+      if (event === 'SIGNED_IN') {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+          duration: 3000,
+        });
+      } else if (event === 'SIGNED_OUT') {
+        toast({
+          title: "Goodbye!",
+          description: "You have been signed out.",
+          duration: 3000,
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="bg-primary w-full py-4 px-6 shadow-md">
@@ -26,13 +67,23 @@ export const Navbar = () => {
           >
             PYQ
           </Button>
-          <Button
-            variant="secondary"
-            className="hover:bg-white/90"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </Button>
+          {isAuthenticated ? (
+            <Button
+              variant="secondary"
+              className="hover:bg-white/90"
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              className="hover:bg-white/90"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </nav>
