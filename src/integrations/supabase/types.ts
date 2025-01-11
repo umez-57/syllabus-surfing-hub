@@ -94,33 +94,42 @@ export type Database = {
         Row: {
           course_code: string
           created_at: string | null
+          credits: number | null
           department_id: string | null
+          description: string | null
           file_name: string
           file_path: string
           id: string
           title: string
+          type: string | null
           updated_at: string | null
           uploaded_by: string | null
         }
         Insert: {
           course_code: string
           created_at?: string | null
+          credits?: number | null
           department_id?: string | null
+          description?: string | null
           file_name: string
           file_path: string
           id?: string
           title: string
+          type?: string | null
           updated_at?: string | null
           uploaded_by?: string | null
         }
         Update: {
           course_code?: string
           created_at?: string | null
+          credits?: number | null
           department_id?: string | null
+          description?: string | null
           file_name?: string
           file_path?: string
           id?: string
           title?: string
+          type?: string | null
           updated_at?: string | null
           uploaded_by?: string | null
         }

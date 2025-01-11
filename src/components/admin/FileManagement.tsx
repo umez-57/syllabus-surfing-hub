@@ -74,9 +74,9 @@ export const FileManagement = () => {
             {files?.map((file) => (
               <TableRow key={file.id}>
                 <TableCell>{file.title}</TableCell>
-                <TableCell>{file.type || 'Syllabus'}</TableCell>
+                <TableCell>{file.type || 'syllabus'}</TableCell>
                 <TableCell>{file.department_id}</TableCell>
-                <TableCell>{file.credits}</TableCell>
+                <TableCell>{file.credits || '-'}</TableCell>
                 <TableCell>
                   {new Date(file.created_at).toLocaleDateString()}
                 </TableCell>
