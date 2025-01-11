@@ -13,13 +13,13 @@ const Auth = () => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   useEffect(() => {
-    console.log("Auth component mounted"); // Debug log
+    console.log("Auth component mounted");
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session); // Debug log for auth state changes
+      console.log("Auth state changed:", event, session);
       
       if (event === "SIGNED_IN") {
-        console.log("User signed in successfully"); // Debug log
+        console.log("User signed in successfully");
         
         // Check if user is admin
         const { data: profile, error: profileError } = await supabase
@@ -28,23 +28,23 @@ const Auth = () => {
           .eq("email", session?.user?.email)
           .maybeSingle();
         
-        console.log("Profile data:", profile, "Profile error:", profileError); // Debug log
+        console.log("Profile data:", profile, "Profile error:", profileError);
         
         if (profile?.role === "admin") {
-          navigate("/admin");
+          navigate("/adminpanelumez");
         } else {
           navigate("/");
         }
       }
       if (event === "SIGNED_OUT") {
-        console.log("User signed out"); // Debug log
+        console.log("User signed out");
         setErrorMessage("");
       }
       // Handle authentication errors
       if (event === "USER_UPDATED" && !session) {
         const { error } = await supabase.auth.getSession();
         if (error) {
-          console.log("Auth error:", error); // Debug log
+          console.log("Auth error:", error);
           setErrorMessage(getErrorMessage(error));
         }
       }
@@ -52,15 +52,25 @@ const Auth = () => {
 
     // Check initial session
     const checkSession = async () => {
-      console.log("Checking initial session"); // Debug log
+      console.log("Checking initial session");
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Initial session:", session, "Error:", error); // Debug log
+      console.log("Initial session:", session, "Error:", error);
       
       if (session) {
-        navigate("/");
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("email", session.user.email)
+          .maybeSingle();
+        
+        if (profile?.role === "admin") {
+          navigate("/adminpanelumez");
+        } else {
+          navigate("/");
+        }
       }
       if (error) {
-        console.log("Session check error:", error); // Debug log
+        console.log("Session check error:", error);
         setErrorMessage(getErrorMessage(error));
       }
     };
@@ -110,7 +120,7 @@ const Auth = () => {
                 default: {
                   colors: {
                     brand: "rgb(234, 56, 76)",
-                    brandAccent: "rgb(234, 56, 76, 0.8)",
+                    brandAccent: "rgba(234, 56, 76, 0.8)",
                   },
                 },
               },
