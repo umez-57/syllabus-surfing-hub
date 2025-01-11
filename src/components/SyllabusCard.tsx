@@ -31,8 +31,8 @@ export const SyllabusCard = ({ title, code, description, credits }: SyllabusCard
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authAction, setAuthAction] = useState<"share" | "download">("download");
 
-  const handleAuthAction = (action: "share" | "download") => {
-    const session = supabase.auth.getSession();
+  const handleAuthAction = async (action: "share" | "download") => {
+    const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       setAuthAction(action);
       setShowAuthDialog(true);
