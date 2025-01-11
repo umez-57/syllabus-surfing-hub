@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -20,7 +21,7 @@ const Auth = () => {
           .select("role")
           .eq("email", "umeshrockz57@gmail.com")
           .single();
-
+        
         if (profile?.role === "admin") {
           navigate("/admin");
         } else {
@@ -71,7 +72,7 @@ const Auth = () => {
           <SupabaseAuth
             supabaseClient={supabase}
             appearance={{
-              theme: "default",
+              theme: ThemeSupa,
               variables: {
                 default: {
                   colors: {

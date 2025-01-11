@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 
@@ -95,7 +96,7 @@ export const SyllabusCard = ({ title, code, description, credits }: SyllabusCard
           <Auth
             supabaseClient={supabase}
             appearance={{
-              theme: "default",
+              theme: ThemeSupa,
               variables: {
                 default: {
                   colors: {
