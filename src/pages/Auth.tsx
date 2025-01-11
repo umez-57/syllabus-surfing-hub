@@ -10,7 +10,6 @@ import { AuthError, AuthApiError } from "@supabase/supabase-js";
 const Auth = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isFlipped, setIsFlipped] = useState(false);
 
   useEffect(() => {
     console.log("Auth component mounted");
@@ -99,7 +98,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
-      <Card className={`w-full max-w-md transition-transform duration-700 perspective-1000 ${isFlipped ? "rotate-y-180" : ""}`}>
+      <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
           <CardDescription>
