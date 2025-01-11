@@ -13,10 +13,14 @@ const Auth = () => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   useEffect(() => {
+    console.log("Auth component mounted"); // Debug log
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session); // Debug log
+      console.log("Auth state changed:", event, session); // Debug log for auth state changes
       
       if (event === "SIGNED_IN") {
+        console.log("User signed in successfully"); // Debug log
+        
         // Check if user is admin
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
@@ -33,6 +37,7 @@ const Auth = () => {
         }
       }
       if (event === "SIGNED_OUT") {
+        console.log("User signed out"); // Debug log
         setErrorMessage("");
       }
       // Handle authentication errors
@@ -47,7 +52,10 @@ const Auth = () => {
 
     // Check initial session
     const checkSession = async () => {
+      console.log("Checking initial session"); // Debug log
       const { data: { session }, error } = await supabase.auth.getSession();
+      console.log("Initial session:", session, "Error:", error); // Debug log
+      
       if (session) {
         navigate("/");
       }
