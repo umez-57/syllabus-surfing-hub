@@ -24,9 +24,11 @@ const App = () => {
           .from("profiles")
           .select("role")
           .eq("email", session.user.email)
-          .single();
+          .maybeSingle();
         
         setIsAdmin(profile?.role === "admin");
+      } else {
+        setIsAdmin(false);
       }
     });
   }, []);
