@@ -28,20 +28,20 @@ export const SyllabusCard = ({ title, code, description, credits }: SyllabusCard
   };
 
   return (
-    <Card className="w-full max-w-md animate-fadeIn hover:shadow-lg transition-all">
+    <Card className="w-full max-w-md animate-fadeIn hover:shadow-lg transition-all border-red-100">
       <CardHeader>
-        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+        <CardTitle className="text-xl font-semibold text-primary">{title}</CardTitle>
         <CardDescription>Course Code: {code} | Credits: {credits}</CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-sm text-gray-600">{description}</p>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={handleShare}>
+        <Button variant="outline" onClick={handleShare} className="border-primary/20 hover:bg-primary/5">
           <Share2 className="mr-2 h-4 w-4" />
           Share
         </Button>
-        <Button onClick={handleDownload}>
+        <Button onClick={handleDownload} className="bg-primary hover:bg-primary/90">
           <Download className="mr-2 h-4 w-4" />
           Download
         </Button>
