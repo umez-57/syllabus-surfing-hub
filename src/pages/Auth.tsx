@@ -19,32 +19,42 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event);
       
-      if (event === "SIGNED_IN") {
-        console.log("User signed in successfully");
-        setErrorMessage(""); // Clear any error messages on successful sign in
-        setIsLoading(false);
+      if (event === "SIGNED_IN" && session?.user) {
+        console.log("User signed in successfully, checking role...");
+        setErrorMessage("");
         
-        // Check if user is admin
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("email", session?.user?.email)
-          .maybeSingle();
-        
-        console.log("Profile data:", profile, "Profile error:", profileError);
-        
-        if (profile?.role === "admin") {
-          navigate("/adminpanelumez");
-        } else {
-          navigate("/");
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("email", session.user.email)
+            .maybeSingle();
+          
+          console.log("Profile data:", profile, "Profile error:", profileError);
+          
+          if (profileError) throw profileError;
+          
+          if (profile?.role === "admin") {
+            console.log("Admin user detected, redirecting to admin panel");
+            navigate("/adminpanelumez");
+          } else {
+            console.log("Regular user detected, redirecting to home");
+            navigate("/");
+          }
+        } catch (error) {
+          console.error("Error checking user role:", error);
+          setErrorMessage("Error checking user role. Please try again.");
+        } finally {
+          setIsLoading(false);
         }
       }
+      
       if (event === "SIGNED_OUT") {
         console.log("User signed out");
         setErrorMessage("");
         setIsLoading(false);
       }
-      // Handle authentication errors
+
       if (event === "USER_UPDATED" && !session) {
         const { error } = await supabase.auth.getSession();
         if (error) {
@@ -59,19 +69,26 @@ const Auth = () => {
     const checkSession = async () => {
       console.log("Checking initial session");
       const { data: { session }, error } = await supabase.auth.getSession();
-      console.log("Initial session:", session, "Error:", error);
+      console.log("Initial session:", session);
       
-      if (session) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("email", session.user.email)
-          .maybeSingle();
-        
-        if (profile?.role === "admin") {
-          navigate("/adminpanelumez");
-        } else {
-          navigate("/");
+      if (session?.user) {
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("email", session.user.email)
+            .maybeSingle();
+          
+          if (profileError) throw profileError;
+          
+          if (profile?.role === "admin") {
+            navigate("/adminpanelumez");
+          } else {
+            navigate("/");
+          }
+        } catch (error) {
+          console.error("Error checking initial session:", error);
+          setErrorMessage("Error checking user role. Please try again.");
         }
       }
       if (error) {
