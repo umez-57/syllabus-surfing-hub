@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import AdminPanel from "./pages/AdminPanel";
+import { FileManagement } from "./components/admin/FileManagement";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
@@ -90,7 +90,10 @@ const App = () => {
               path="/adminpanelumez"
               element={
                 isAuthenticated && isAdmin ? (
-                  <AdminPanel />
+                  <div className="container mx-auto px-4 py-8">
+                    <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
+                    <FileManagement />
+                  </div>
                 ) : (
                   <Navigate to="/" replace />
                 )
