@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,6 +56,27 @@ export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
         return;
       }
 
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        toast({
+          title: "Error",
+          description: "Only PDF files are allowed",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Error",
+          description: "File size must be less than 10MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('title', data.title);
@@ -76,6 +96,12 @@ export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
         }
       );
 
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned an invalid response format");
+      }
+
       const result = await response.json();
 
       if (!response.ok) {
@@ -93,7 +119,7 @@ export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
       console.error('Upload error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to upload file",
+        description: error.message || "Failed to upload file. Please try again.",
         variant: "destructive",
       });
     } finally {

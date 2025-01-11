@@ -13,17 +13,31 @@ serve(async (req) => {
 
   try {
     const formData = await req.formData()
-    const file = formData.get('file')
+    const file = formData.get('file') as File
     const title = formData.get('title')
     const type = formData.get('type')
     const department = formData.get('department')
     const credits = formData.get('credits')
     const description = formData.get('description')
 
-    if (!file || !title || !type || !department || !credits) {
+    if (!file || !title || !type || !department) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 400 
+        }
+      )
+    }
+
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      return new Response(
+        JSON.stringify({ error: 'Only PDF files are allowed' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 400 
+        }
       )
     }
 
@@ -40,14 +54,18 @@ serve(async (req) => {
     const { data: storageData, error: uploadError } = await supabase.storage
       .from('syllabi')
       .upload(filePath, file, {
-        contentType: file.type,
+        contentType: 'application/pdf',
         upsert: false
       })
 
     if (uploadError) {
+      console.error('Storage upload error:', uploadError)
       return new Response(
         JSON.stringify({ error: 'Failed to upload file', details: uploadError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 500 
+        }
       )
     }
 
@@ -69,20 +87,31 @@ serve(async (req) => {
         .from('syllabi')
         .remove([filePath])
 
+      console.error('Database insert error:', dbError)
       return new Response(
         JSON.stringify({ error: 'Failed to save file metadata', details: dbError }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 500 
+        }
       )
     }
 
     return new Response(
       JSON.stringify({ message: 'File uploaded successfully', filePath }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+        status: 200 
+      }
     )
   } catch (error) {
+    console.error('Unexpected error:', error)
     return new Response(
       JSON.stringify({ error: 'An unexpected error occurred', details: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+        status: 500 
+      }
     )
   }
 })
