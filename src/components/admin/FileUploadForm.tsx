@@ -85,27 +85,13 @@ export const FileUploadForm = ({ onClose }: { onClose: () => void }) => {
       formData.append('credits', data.credits);
       formData.append('description', data.description);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-syllabus`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: formData,
-        }
-      );
+      // Use Supabase client to call the Edge Function
+      const { data: response, error } = await supabase.functions.invoke('upload-syllabus', {
+        body: formData,
+      });
 
-      // Check if response is JSON
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Server returned an invalid response format");
-      }
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to upload file');
+      if (error) {
+        throw error;
       }
 
       toast({
