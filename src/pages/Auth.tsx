@@ -14,13 +14,17 @@ const Auth = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session); // Debug log
+      
       if (event === "SIGNED_IN") {
         // Check if user is admin
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
           .eq("email", session?.user?.email)
           .maybeSingle();
+        
+        console.log("Profile data:", profile, "Profile error:", profileError); // Debug log
         
         if (profile?.role === "admin") {
           navigate("/admin");
@@ -35,11 +39,25 @@ const Auth = () => {
       if (event === "USER_UPDATED" && !session) {
         const { error } = await supabase.auth.getSession();
         if (error) {
+          console.log("Auth error:", error); // Debug log
           setErrorMessage(getErrorMessage(error));
         }
       }
     });
 
+    // Check initial session
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/");
+      }
+      if (error) {
+        console.log("Session check error:", error); // Debug log
+        setErrorMessage(getErrorMessage(error));
+      }
+    };
+    
+    checkSession();
     return () => subscription.unsubscribe();
   }, [navigate]);
 
