@@ -11,30 +11,36 @@ export const SearchBar = () => {
   const { toast } = useToast();
 
   const { data: syllabi, isLoading } = useQuery({
-    queryKey: ['syllabi', search],
+    queryKey: ["syllabi", search],
     queryFn: async () => {
       try {
         let query = supabase
-          .from('syllabi')
-          .select(`
-            *,
+          .from("syllabi")
+          .select(
+            `
+            id,
+            title,
+            course_code,
+            description,
+            credits,
+            file_path,
+            file_name,
             department:departments(name),
             uploader:profiles(email)
-          `)
-          .order('created_at', { ascending: false });
+          `
+          )
+          .order("created_at", { ascending: false });
 
         if (search) {
-          query = query.or(`
-            course_code.ilike.%${search}%,
-            title.ilike.%${search}%,
-            description.ilike.%${search}%
-          `);
+          query = query.or(
+            `course_code.ilike.%${search}%,title.ilike.%${search}%,description.ilike.%${search}%`
+          );
         }
 
         const { data, error } = await query;
-        
+
         if (error) {
-          console.error('Error fetching syllabi:', error);
+          console.error("Error fetching syllabi:", error);
           toast({
             title: "Error",
             description: "Failed to fetch syllabi. Please try again.",
@@ -42,11 +48,11 @@ export const SearchBar = () => {
           });
           return [];
         }
-        
-        console.log('Search results:', data);
+
+        console.log("Search results:", data);
         return data || [];
       } catch (error) {
-        console.error('Error in search query:', error);
+        console.error("Error in search query:", error);
         toast({
           title: "Error",
           description: "An unexpected error occurred. Please try again.",
@@ -87,6 +93,8 @@ export const SearchBar = () => {
                 code={syllabus.course_code}
                 description={syllabus.description || "No description available"}
                 credits={syllabus.credits || 0}
+                filePath={syllabus.file_path} // Pass the file path here
+                fileName={syllabus.file_name || "syllabus.pdf"} // Pass the file name here
               />
             ))
           ) : (

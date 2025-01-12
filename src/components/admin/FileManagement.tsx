@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,40 +12,45 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, FileText, Download } from "lucide-react";
+import { Search, Download, Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 
 export const FileManagement = () => {
   const [page, setPage] = useState(0);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [editFile, setEditFile] = useState(null); // Track the file being edited
   const [search, setSearch] = useState("");
   const ITEMS_PER_PAGE = 30;
 
+  const queryClient = useQueryClient();
+
   const { data: files, isLoading, error } = useQuery({
-    queryKey: ['syllabi', page, search],
+    queryKey: ["syllabi", page, search],
     queryFn: async () => {
       let query = supabase
-        .from('syllabi')
+        .from("syllabi")
         .select(`
           *,
           department:departments(name),
           uploader:profiles(email)
         `)
         .range(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE - 1)
-        .order('created_at', { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (search) {
-        query = query.or(`title.ilike.%${search}%,file_name.ilike.%${search}%,course_code.ilike.%${search}%`);
+        query = query.or(
+          `title.ilike.%${search}%,file_name.ilike.%${search}%,course_code.ilike.%${search}%`
+        );
       }
 
       const { data, error } = await query;
-      
+
       if (error) {
-        console.error('Error fetching syllabi:', error);
-        toast.error('Failed to fetch syllabi');
+        console.error("Error fetching syllabi:", error);
+        toast.error("Failed to fetch syllabi");
         throw error;
       }
-      
+
       return data;
     },
   });
@@ -53,16 +58,15 @@ export const FileManagement = () => {
   const handleDownload = async (filePath: string, fileName: string) => {
     try {
       const { data, error } = await supabase.storage
-        .from('syllabi')
+        .from("syllabi")
         .download(filePath);
-      
+
       if (error) {
         throw error;
       }
 
-      // Create a download link
       const url = URL.createObjectURL(data);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = fileName;
       document.body.appendChild(link);
@@ -70,9 +74,47 @@ export const FileManagement = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading file:', error);
-      toast.error('Failed to download file');
+      console.error("Error downloading file:", error);
+      toast.error("Failed to download file");
     }
+  };
+
+  const deleteFile = async (fileId: string, filePath: string) => {
+    if (!confirm("Are you sure you want to delete this file?")) return;
+
+    try {
+      // Delete file from storage
+      const { error: storageError } = await supabase.storage
+        .from("syllabi")
+        .remove([filePath]);
+
+      if (storageError) {
+        console.error("Error deleting file from storage:", storageError);
+        throw new Error("Failed to delete file from storage");
+      }
+
+      // Delete file from database
+      const { error: dbError } = await supabase
+        .from("syllabi")
+        .delete()
+        .eq("id", fileId);
+
+      if (dbError) {
+        console.error("Error deleting file from database:", dbError);
+        throw new Error("Failed to delete file from database");
+      }
+
+      toast.success("File deleted successfully");
+      queryClient.invalidateQueries(["syllabi"]);
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast.error("Failed to delete file");
+    }
+  };
+
+  const openEditForm = (file) => {
+    setEditFile(file); // Pass the selected file to edit
+    setShowUploadForm(true);
   };
 
   if (error) {
@@ -86,7 +128,9 @@ export const FileManagement = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <Button onClick={() => setShowUploadForm(true)}>Upload New File</Button>
+        <Button onClick={() => { setShowUploadForm(true); setEditFile(null); }}>
+          Upload New File
+        </Button>
         <div className="relative w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <Input
@@ -100,7 +144,10 @@ export const FileManagement = () => {
       </div>
 
       {showUploadForm && (
-        <FileUploadForm onClose={() => setShowUploadForm(false)} />
+        <FileUploadForm
+          onClose={() => setShowUploadForm(false)}
+          editFile={editFile} // Pass the file being edited to the form
+        />
       )}
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -111,6 +158,7 @@ export const FileManagement = () => {
               <TableHead>Course Code</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Credits</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Uploaded By</TableHead>
               <TableHead>Upload Date</TableHead>
@@ -120,13 +168,13 @@ export const FileManagement = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 </TableCell>
               </TableRow>
             ) : files?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={9} className="text-center py-8">
                   No syllabi found
                 </TableCell>
               </TableRow>
@@ -135,10 +183,11 @@ export const FileManagement = () => {
                 <TableRow key={file.id}>
                   <TableCell className="font-medium">{file.title}</TableCell>
                   <TableCell>{file.course_code}</TableCell>
-                  <TableCell>{file.department?.name || 'N/A'}</TableCell>
-                  <TableCell>{file.credits || 'N/A'}</TableCell>
-                  <TableCell>{file.type || 'syllabus'}</TableCell>
-                  <TableCell>{file.uploader?.email || 'N/A'}</TableCell>
+                  <TableCell>{file.department?.name || "N/A"}</TableCell>
+                  <TableCell>{file.credits || "N/A"}</TableCell>
+                  <TableCell>{file.description || "N/A"}</TableCell>
+                  <TableCell>{file.type || "syllabus"}</TableCell>
+                  <TableCell>{file.uploader?.email || "N/A"}</TableCell>
                   <TableCell>
                     {new Date(file.created_at).toLocaleDateString()}
                   </TableCell>
@@ -152,6 +201,22 @@ export const FileManagement = () => {
                       >
                         <Download className="h-4 w-4" />
                       </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => openEditForm(file)}
+                        title="Edit"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => deleteFile(file.id, file.file_path)}
+                        title="Delete"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -164,14 +229,14 @@ export const FileManagement = () => {
       <div className="flex justify-center gap-4 mt-4">
         <Button
           variant="outline"
-          onClick={() => setPage(p => Math.max(0, p - 1))}
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
           disabled={page === 0}
         >
           Previous
         </Button>
         <Button
           variant="outline"
-          onClick={() => setPage(p => p + 1)}
+          onClick={() => setPage((p) => p + 1)}
           disabled={!files || files.length < ITEMS_PER_PAGE}
         >
           Next

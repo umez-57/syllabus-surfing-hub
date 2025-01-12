@@ -13,7 +13,8 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -22,6 +23,7 @@ const App = () => {
         if (!session) {
           setIsAuthenticated(false);
           setIsAdmin(false);
+          setIsLoading(false);
           return;
         }
 
@@ -35,15 +37,16 @@ const App = () => {
           console.error("Error fetching profile:", error);
           setIsAuthenticated(false);
           setIsAdmin(false);
-          return;
+        } else {
+          setIsAuthenticated(true);
+          setIsAdmin(profile?.role === "admin");
         }
-
-        setIsAuthenticated(true);
-        setIsAdmin(profile?.role === "admin");
       } catch (error) {
         console.error("Error in auth check:", error);
         setIsAuthenticated(false);
         setIsAdmin(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -51,8 +54,8 @@ const App = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
-      
-      if (event === 'SIGNED_OUT') {
+
+      if (event === "SIGNED_OUT") {
         setIsAuthenticated(false);
         setIsAdmin(false);
         return;
@@ -70,11 +73,10 @@ const App = () => {
             console.error("Error fetching profile:", error);
             setIsAuthenticated(false);
             setIsAdmin(false);
-            return;
+          } else {
+            setIsAuthenticated(true);
+            setIsAdmin(profile?.role === "admin");
           }
-
-          setIsAuthenticated(true);
-          setIsAdmin(profile?.role === "admin");
         } catch (error) {
           console.error("Error in auth state change:", error);
           setIsAuthenticated(false);
@@ -91,7 +93,7 @@ const App = () => {
     };
   }, []);
 
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

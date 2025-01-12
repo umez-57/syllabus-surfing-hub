@@ -26,6 +26,8 @@ interface UploadFormData {
   courseCode: string;
   departmentId: string;
   file: FileList;
+  credits: number;
+  description: string;
 }
 
 interface FileUploadFormProps {
@@ -39,13 +41,13 @@ export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
   const form = useForm<UploadFormData>();
 
   const { data: departments } = useQuery({
-    queryKey: ['departments'],
+    queryKey: ["departments"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('departments')
-        .select('*')
-        .order('name');
-      
+        .from("departments")
+        .select("*")
+        .order("name");
+
       if (error) throw error;
       return data;
     },
@@ -54,8 +56,8 @@ export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
   const onSubmit = async (data: UploadFormData) => {
     try {
       setIsUploading(true);
-      const file = data.file[0];
-      
+      const file = data.file[0]; // Get the uploaded file
+
       if (!file) {
         toast({
           title: "Error",
@@ -65,51 +67,33 @@ export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
         return;
       }
 
-      // Validate file type
-      if (file.type !== 'application/pdf') {
-        toast({
-          title: "Error",
-          description: "Only PDF files are allowed",
-          variant: "destructive",
+      // Upload the file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("syllabi") // Ensure the bucket name matches
+        .upload(`files/${file.name}`, file, {
+          cacheControl: "3600",
+          upsert: true,
         });
-        return;
+
+      if (uploadError) {
+        console.error("File upload error:", uploadError);
+        throw new Error("Failed to upload file.");
       }
 
-      // Validate file size (10MB limit)
-      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-      if (file.size > MAX_FILE_SIZE) {
-        toast({
-          title: "Error",
-          description: "File size must be less than 10MB",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('title', data.title);
-      formData.append('courseCode', data.courseCode);
-      formData.append('departmentId', data.departmentId);
-
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to upload files",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error } = await supabase.functions.invoke('upload-syllabus', {
-        body: formData,
+      // Insert metadata into the database
+      const { error: dbError } = await supabase.from("syllabi").insert({
+        title: data.title,
+        course_code: data.courseCode,
+        department_id: data.departmentId,
+        credits: data.credits,
+        description: data.description,
+        file_path: uploadData.path, // Store the exact path in the database
+        file_name: file.name,
       });
 
-      if (error) {
-        console.error('Upload error:', error);
-        throw error;
+      if (dbError) {
+        console.error("Database insert error:", dbError);
+        throw dbError;
       }
 
       toast({
@@ -120,10 +104,10 @@ export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
       form.reset();
       onClose();
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error("Error in file upload:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to upload file",
+        description: error.message || "Failed to upload file.",
         variant: "destructive",
       });
     } finally {
@@ -182,6 +166,45 @@ export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="credits"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Credits</FormLabel>
+              <Select onValueChange={(value) => field.onChange(Number(value))}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select credits" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {[1, 2, 3, 4].map((credit) => (
+                    <SelectItem key={credit} value={credit.toString()}>
+                      {credit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="Add a brief description" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
