@@ -3,6 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { StickyNote } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -53,13 +60,22 @@ export const Navbar = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            className="text-white hover:text-white hover:bg-primary/80"
-            onClick={() => navigate("/scope")}
-          >
-            SCOPE
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-white hover:text-white hover:bg-primary/80"
+                >
+                  <StickyNote className="mr-2" />
+                  Notes
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Coming Soon!</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Button
             variant="ghost"
             className="text-white hover:text-white hover:bg-primary/80"
