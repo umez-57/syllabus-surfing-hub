@@ -18,7 +18,7 @@ import { toast } from "sonner";
 export const FileManagement = () => {
   const [page, setPage] = useState(0);
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [editFile, setEditFile] = useState(null); // Track the file being edited
+  const [editFile, setEditFile] = useState<any>(null); // Track the file being edited
   const [search, setSearch] = useState("");
   const ITEMS_PER_PAGE = 30;
 
@@ -105,15 +105,15 @@ export const FileManagement = () => {
       }
 
       toast.success("File deleted successfully");
-      queryClient.invalidateQueries(["syllabi"]);
+      queryClient.invalidateQueries({ queryKey: ["syllabi"] });
     } catch (error) {
       console.error("Error deleting file:", error);
       toast.error("Failed to delete file");
     }
   };
 
-  const openEditForm = (file) => {
-    setEditFile(file); // Pass the selected file to edit
+  const openEditForm = (file: any) => {
+    setEditFile(file);
     setShowUploadForm(true);
   };
 

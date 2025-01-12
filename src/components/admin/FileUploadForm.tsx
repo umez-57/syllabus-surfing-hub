@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,13 +32,25 @@ interface UploadFormData {
 
 interface FileUploadFormProps {
   onClose: () => void;
+  editFile?: any; // Add editFile prop to the interface
 }
 
-export const FileUploadForm = ({ onClose }: FileUploadFormProps) => {
+export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const queryClient = useQueryClient();
 
-  const form = useForm<UploadFormData>();
+  const form = useForm<UploadFormData>({
+    defaultValues: editFile
+      ? {
+          title: editFile.title,
+          courseCode: editFile.course_code,
+          departmentId: editFile.department_id,
+          credits: editFile.credits,
+          description: editFile.description,
+        }
+      : undefined,
+  });
 
   const { data: departments } = useQuery({
     queryKey: ["departments"],
