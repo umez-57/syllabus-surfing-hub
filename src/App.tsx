@@ -9,6 +9,9 @@ import { FileManagement } from "./components/admin/FileManagement";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
+// 1) Import the new NotesHome page
+import { NotesHome } from "./pages/NotesHome";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -19,7 +22,10 @@ const App = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Check session
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session) {
           setIsAuthenticated(false);
           setIsAdmin(false);
@@ -27,6 +33,7 @@ const App = () => {
           return;
         }
 
+        // Fetch user role from "profiles" table
         const { data: profile, error } = await supabase
           .from("profiles")
           .select("role")
@@ -52,7 +59,10 @@ const App = () => {
 
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
 
       if (event === "SIGNED_OUT") {
@@ -108,8 +118,14 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Auth />} />
+
+            {/* 2) Add the new Notes route (publicly accessible) */}
+            <Route path="/notes" element={<NotesHome />} />
+
+            {/* Admin route */}
             <Route
               path="/adminpanelumez"
               element={
@@ -123,6 +139,8 @@ const App = () => {
                 )
               }
             />
+
+            {/* Catch-all or other routes could go here */}
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

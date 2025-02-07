@@ -25,14 +25,14 @@ interface UploadFormData {
   title: string;
   courseCode: string;
   departmentId: string;
-  file: FileList;
-  credits: number;
+  file: FileList | null;
+  credits: number | null;
   description: string;
 }
 
 interface FileUploadFormProps {
   onClose: () => void;
-  editFile?: any; // Add editFile prop to the interface
+  editFile?: any;
 }
 
 export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
@@ -41,15 +41,14 @@ export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
   const queryClient = useQueryClient();
 
   const form = useForm<UploadFormData>({
-    defaultValues: editFile
-      ? {
-          title: editFile.title,
-          courseCode: editFile.course_code,
-          departmentId: editFile.department_id,
-          credits: editFile.credits,
-          description: editFile.description,
-        }
-      : undefined,
+    defaultValues: {
+      title: editFile?.title || "",
+      courseCode: editFile?.course_code || "",
+      departmentId: editFile?.department_id || "",
+      credits: editFile?.credits || null,
+      description: editFile?.description || "",
+      file: null,
+    },
   });
 
   const { data: departments } = useQuery({
@@ -68,7 +67,7 @@ export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
   const onSubmit = async (data: UploadFormData) => {
     try {
       setIsUploading(true);
-      const file = data.file[0]; // Get the uploaded file
+      const file = data.file ? data.file[0] : null;
 
       if (!file) {
         toast({
@@ -81,14 +80,13 @@ export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
 
       // Upload the file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("syllabi") // Ensure the bucket name matches
+        .from("syllabi")
         .upload(`files/${file.name}`, file, {
           cacheControl: "3600",
           upsert: true,
         });
 
       if (uploadError) {
-        console.error("File upload error:", uploadError);
         throw new Error("Failed to upload file.");
       }
 
@@ -99,12 +97,11 @@ export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
         department_id: data.departmentId,
         credits: data.credits,
         description: data.description,
-        file_path: uploadData.path, // Store the exact path in the database
+        file_path: uploadData.path,
         file_name: file.name,
       });
 
       if (dbError) {
-        console.error("Database insert error:", dbError);
         throw dbError;
       }
 
@@ -114,9 +111,9 @@ export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
       });
 
       form.reset();
-      onClose();
-    } catch (error) {
-      console.error("Error in file upload:", error);
+      queryClient.invalidateQueries(["syllabi"]); // Refresh the file list
+      onClose(); // Close the form
+    } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to upload file.",
@@ -189,7 +186,12 @@ export const FileUploadForm = ({ onClose, editFile }: FileUploadFormProps) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Credits</FormLabel>
-              <Select onValueChange={(value) => field.onChange(Number(value))}>
+              <Select
+                onValueChange={(value) =>
+                  field.onChange(Number(value) || null)
+                }
+                defaultValue={field.value?.toString() || ""}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select credits" />

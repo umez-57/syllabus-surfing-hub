@@ -66,6 +66,7 @@ export const Navbar = () => {
                 <Button
                   variant="ghost"
                   className="text-white hover:text-white hover:bg-primary/80"
+                  onClick={() => navigate("/notes")}
                 >
                   <StickyNote className="mr-2" />
                   Notes

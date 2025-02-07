@@ -18,7 +18,7 @@ import { toast } from "sonner";
 export const FileManagement = () => {
   const [page, setPage] = useState(0);
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [editFile, setEditFile] = useState<any>(null); // Track the file being edited
+  const [editFile, setEditFile] = useState<any>(null);
   const [search, setSearch] = useState("");
   const ITEMS_PER_PAGE = 30;
 
@@ -83,31 +83,26 @@ export const FileManagement = () => {
     if (!confirm("Are you sure you want to delete this file?")) return;
 
     try {
-      // Delete file from storage
       const { error: storageError } = await supabase.storage
         .from("syllabi")
         .remove([filePath]);
 
       if (storageError) {
-        console.error("Error deleting file from storage:", storageError);
         throw new Error("Failed to delete file from storage");
       }
 
-      // Delete file from database
       const { error: dbError } = await supabase
         .from("syllabi")
         .delete()
         .eq("id", fileId);
 
       if (dbError) {
-        console.error("Error deleting file from database:", dbError);
-        throw new Error("Failed to delete file from database");
+        throw dbError;
       }
 
       toast.success("File deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["syllabi"] });
     } catch (error) {
-      console.error("Error deleting file:", error);
       toast.error("Failed to delete file");
     }
   };
@@ -145,8 +140,11 @@ export const FileManagement = () => {
 
       {showUploadForm && (
         <FileUploadForm
-          onClose={() => setShowUploadForm(false)}
-          editFile={editFile} // Pass the file being edited to the form
+          onClose={() => {
+            setShowUploadForm(false);
+            queryClient.invalidateQueries(["syllabi"]);
+          }}
+          editFile={editFile}
         />
       )}
 

@@ -8,9 +8,12 @@ import { useToast } from "@/components/ui/use-toast";
 
 export const SearchBar = () => {
   const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(6); 
+  // Default to 6 so only 2 rows appear on large screens if no search is applied
+
   const { toast } = useToast();
 
-  const { data: syllabi, isLoading } = useQuery({
+  const { data: syllabi = [], isLoading } = useQuery({
     queryKey: ["syllabi", search],
     queryFn: async () => {
       try {
@@ -18,20 +21,21 @@ export const SearchBar = () => {
           .from("syllabi")
           .select(
             `
-            id,
-            title,
-            course_code,
-            description,
-            credits,
-            file_path,
-            file_name,
-            department:departments(name),
-            uploader:profiles(email)
-          `
+              id,
+              title,
+              course_code,
+              description,
+              credits,
+              file_path,
+              file_name,
+              department:departments(name),
+              uploader:profiles(email)
+            `
           )
           .order("created_at", { ascending: false });
 
         if (search) {
+          // If user is searching, filter accordingly
           query = query.or(
             `course_code.ilike.%${search}%,title.ilike.%${search}%,description.ilike.%${search}%`
           );
@@ -49,7 +53,6 @@ export const SearchBar = () => {
           return [];
         }
 
-        console.log("Search results:", data);
         return data || [];
       } catch (error) {
         console.error("Error in search query:", error);
@@ -66,43 +69,96 @@ export const SearchBar = () => {
     refetchOnWindowFocus: false,
   });
 
+  // Determine if user is searching or not
+  const isSearching = search.trim().length > 0;
+
+  // Decide how many items to show per chunk:
+  // - No search → 6 items max
+  // - Search → load in batches of 10
+  const chunkSize = isSearching ? 10 : 6;
+
+  // Slice the syllabi array so we only show up to "visibleCount"
+  const displayedSyllabi = syllabi.slice(0, visibleCount);
+
+  // Handle clicking "Load More"
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + chunkSize);
+  };
+
   return (
     <div className="space-y-8 w-full max-w-4xl mx-auto">
+      {/* SEARCH INPUT */}
       <div className="relative w-full">
         <Input
           type="search"
           placeholder="Search for any subject syllabus..."
           className="pl-10 pr-4 py-6 text-lg rounded-xl border-2 border-accent hover:border-primary/20 transition-all"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            // Whenever search text changes,
+            // reset visibleCount so we start fresh
+            setVisibleCount(isSearching ? 10 : 6);
+          }}
         />
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+        <Search
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          size={20}
+        />
       </div>
 
+      {/* LOADING SPINNER OR GRID OF SYLLABI */}
       {isLoading ? (
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {syllabi && syllabi.length > 0 ? (
-            syllabi.map((syllabus) => (
-              <SyllabusCard
-                key={syllabus.id}
-                title={syllabus.title}
-                code={syllabus.course_code}
-                description={syllabus.description || "No description available"}
-                credits={syllabus.credits || 0}
-                filePath={syllabus.file_path} // Pass the file path here
-                fileName={syllabus.file_name || "syllabus.pdf"} // Pass the file name here
-              />
-            ))
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayedSyllabi.length > 0 ? (
+              displayedSyllabi.map((syllabus) => (
+                <SyllabusCard
+                  key={syllabus.id}
+                  title={syllabus.title}
+                  code={syllabus.course_code}
+                  description={syllabus.description || "No description available"}
+                  credits={syllabus.credits || 0}
+                  filePath={syllabus.file_path}
+                  fileName={syllabus.file_name || "syllabus.pdf"}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center text-gray-500">
+                {search
+                  ? "No syllabi found matching your search."
+                  : "Start typing to search for syllabi."}
+              </div>
+            )}
+          </div>
+
+          {/* LOAD MORE / SEARCH MESSAGE */}
+          {isSearching ? (
+            // If user is searching and we've shown fewer items than exist, show Load More
+            displayedSyllabi.length < syllabi.length && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={handleLoadMore}
+                  className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+                >
+                  Load More
+                </button>
+              </div>
+            )
           ) : (
-            <div className="col-span-full text-center text-gray-500">
-              {search ? "No syllabi found matching your search." : "Start typing to search for syllabi."}
-            </div>
+            // If not searching, and we have more items than 6,
+            // just show the "Search for more" message instead of Load More.
+            syllabi.length > 6 && (
+              <p className="text-center text-gray-600 mt-6">
+                Want to see more? Use the search bar above to find additional syllabi!
+              </p>
+            )
           )}
-        </div>
+        </>
       )}
     </div>
   );

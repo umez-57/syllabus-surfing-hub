@@ -1,4 +1,5 @@
-import { Download, Eye } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Download, Eye, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,11 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // To navigate to the login page
+import { useNavigate } from "react-router-dom";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { toast } from "sonner";
+import { ClipLoader } from "react-spinners"; // Import loader
 
 interface SyllabusCardProps {
   title: string;
@@ -34,26 +35,28 @@ export const SyllabusCard = ({
 }: SyllabusCardProps) => {
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
   const [user, setUser] = useState(null);
-  const navigate = useNavigate(); // Hook to navigate between pages
+  const [loadingView, setLoadingView] = useState(false); // Loader for View button
+  const [loadingDownload, setLoadingDownload] = useState(false); // Loader for Download button
+  const navigate = useNavigate();
 
-  // Fetch the logged-in user details
   useEffect(() => {
     const fetchUser = async () => {
       const {
         data: { user },
-      } = await supabase.auth.getUser(); // Fetch the current user
+      } = await supabase.auth.getUser();
       setUser(user);
     };
     fetchUser();
   }, []);
 
   const handleView = async () => {
-    try {
-      if (!filePath) {
-        toast.error("File path is missing for viewing.");
-        return;
-      }
+    if (!filePath) {
+      toast.error("File path is missing for viewing.");
+      return;
+    }
 
+    setLoadingView(true); // Show loader for View
+    try {
       const fullPath = filePath.startsWith("files/") ? filePath : `files/${filePath}`;
 
       const { data, error } = await supabase.storage.from("syllabi").download(fullPath);
@@ -69,23 +72,25 @@ export const SyllabusCard = ({
     } catch (error) {
       console.error("Error viewing file:", error);
       toast.error("Failed to load file.");
+    } finally {
+      setLoadingView(false); // Hide loader
     }
   };
 
   const handleDownload = async () => {
+    if (!user) {
+      toast.error("You need to be logged in to download files.");
+      navigate("/login");
+      return;
+    }
+
+    if (!filePath) {
+      toast.error("File path is missing for download.");
+      return;
+    }
+
+    setLoadingDownload(true); // Show loader for Download
     try {
-      // Check if the user is logged in
-      if (!user) {
-        toast.error("You need to be logged in to download files.");
-        navigate("/login"); // Redirect to login page
-        return;
-      }
-
-      if (!filePath) {
-        toast.error("File path is missing for download.");
-        return;
-      }
-
       const fullPath = filePath.startsWith("files/") ? filePath : `files/${filePath}`;
 
       const { data, error } = await supabase.storage.from("syllabi").download(fullPath);
@@ -109,6 +114,8 @@ export const SyllabusCard = ({
     } catch (error) {
       console.error("Error downloading file:", error);
       toast.error("Failed to download file.");
+    } finally {
+      setLoadingDownload(false); // Hide loader
     }
   };
 
@@ -129,17 +136,31 @@ export const SyllabusCard = ({
             variant="outline"
             onClick={handleView}
             className="border-primary/20 hover:bg-primary/5"
+            disabled={loadingView} // Disable View button while loading
           >
-            <Eye className="mr-2 h-4 w-4" />
-            View
+            {loadingView ? (
+              <ClipLoader size={16} color="#4F46E5" /> // Loader for View
+            ) : (
+              <>
+                <Eye className="mr-2 h-4 w-4" />
+                View
+              </>
+            )}
           </Button>
           <Button
             variant="outline"
             onClick={handleDownload}
             className="border-primary/20 hover:bg-primary/5"
+            disabled={loadingDownload} // Disable Download button while loading
           >
-            <Download className="mr-2 h-4 w-4" />
-            Download
+            {loadingDownload ? (
+              <ClipLoader size={16} color="#4F46E5" /> // Loader for Download
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
@@ -158,6 +179,7 @@ export const SyllabusCard = ({
               }}
               className="absolute top-2 right-2 bg-red-500 text-white hover:bg-red-600"
             >
+              <X className="mr-2 h-4 w-4" />
               Close
             </Button>
           </div>
