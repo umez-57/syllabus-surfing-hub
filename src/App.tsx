@@ -7,10 +7,9 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { FileManagement } from "./components/admin/FileManagement";
 import { useEffect, useState } from "react";
-import { supabase } from "./integrations/supabase/client";
-
-// 1) Import the new NotesHome page
+import { supabase } from "@/integrations/supabase/client";
 import { NotesHome } from "./pages/NotesHome";
+import TimetableScheduler from "./pages/TimetableScheduler"; // Import the new Timetable Scheduler component
 
 const queryClient = new QueryClient();
 
@@ -20,86 +19,91 @@ const App = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let isMounted = true; // Ensure the component is mounted to avoid race conditions
+  
     const checkAuth = async () => {
       try {
+        setIsLoading(true); // Start loading state
+  
         // Check session
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!session) {
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-          setIsLoading(false);
-          return;
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+        if (sessionError || !session) {
+          console.error("No session found or session error:", sessionError);
+          if (isMounted) {
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+          }
+          <Navigate to="/" replace />
         }
-
-        // Fetch user role from "profiles" table
-        const { data: profile, error } = await supabase
+  
+        // Fetch user role from the "profiles" table
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
           .eq("email", session.user.email)
           .single();
-
-        if (error) {
-          console.error("Error fetching profile:", error);
-          setIsAuthenticated(false);
-          setIsAdmin(false);
-        } else {
+  
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          if (isMounted) {
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+          }
+          return;
+        }
+  
+        console.log("Profile fetched:", profile);
+  
+        if (isMounted) {
           setIsAuthenticated(true);
           setIsAdmin(profile?.role === "admin");
         }
       } catch (error) {
         console.error("Error in auth check:", error);
-        setIsAuthenticated(false);
-        setIsAdmin(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session);
-
-      if (event === "SIGNED_OUT") {
-        setIsAuthenticated(false);
-        setIsAdmin(false);
-        return;
-      }
-
-      if (session?.user) {
-        try {
-          const { data: profile, error } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("email", session.user.email)
-            .single();
-
-          if (error) {
-            console.error("Error fetching profile:", error);
-            setIsAuthenticated(false);
-            setIsAdmin(false);
-          } else {
-            setIsAuthenticated(true);
-            setIsAdmin(profile?.role === "admin");
-          }
-        } catch (error) {
-          console.error("Error in auth state change:", error);
+        if (isMounted) {
           setIsAuthenticated(false);
           setIsAdmin(false);
         }
-      } else {
-        setIsAuthenticated(false);
-        setIsAdmin(false);
+      }
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    };
+  
+    // Call `checkAuth` on component mount
+    checkAuth();
+    
+    // Listen for auth state changes
+    const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event);
+  
+      if (event === "SIGNED_OUT") {
+        console.log("User signed out.");
+        if (isMounted) {
+          setIsAuthenticated(false);
+          setIsAdmin(false);
+        }
+        return;
+      }
+  
+      if (event === "SIGNED_IN" && session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("email", session.user.email)
+          .single();
+        
+        if (isMounted) {
+          setIsAuthenticated(true);
+          setIsAdmin(profile?.role === "admin");
+        }
       }
     });
-
+  
     return () => {
-      subscription.unsubscribe();
+      isMounted = false; // Cleanup to prevent updates on unmounted component
+      subscription.unsubscribe(); // Unsubscribe from auth state changes
     };
   }, []);
 
@@ -122,8 +126,11 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Auth />} />
 
-            {/* 2) Add the new Notes route (publicly accessible) */}
+            {/* Notes route */}
             <Route path="/notes" element={<NotesHome />} />
+
+            {/* Timetable Scheduler route */}
+            <Route path="/timetable" element={<TimetableScheduler />} />
 
             {/* Admin route */}
             <Route

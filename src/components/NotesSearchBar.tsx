@@ -27,7 +27,7 @@ export function NotesSearchBar({ department_id }: NotesSearchBarProps) {
 
         if (searchText.trim().length > 0) {
           query = query.or(
-            `title.ilike.%${searchText}%,description.ilike.%${searchText}%`
+            `title.ilike.%${searchText}%,description.ilike.%${searchText}%,notes_by.ilike.%${searchText}%`
           );
         }
 

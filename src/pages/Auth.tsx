@@ -9,100 +9,80 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 const Auth = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true); // Initialization loading state
+  const [hasRedirected, setHasRedirected] = useState(false); // Prevent multiple redirections
 
   useEffect(() => {
-    console.log("Auth component mounted");
-    let mounted = true;
+    let isMounted = true; // To prevent state updates on unmounted component
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, "Session:", session?.user?.email);
-
-      if (!mounted) return;
-
-      if (event === "SIGNED_IN" && session?.user) {
-        console.log("User signed in successfully, checking role...");
-        setErrorMessage("");
-
-        try {
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("email", session.user.email)
-            .single();
-
-          if (profileError) {
-            console.error("Profile error:", profileError);
-            throw profileError;
-          }
-
-          if (profile?.role === "admin") {
-            console.log("Admin user detected, redirecting to admin panel");
-            navigate("/adminpanelumez", { replace: true });
-          } else {
-            console.log("Regular user detected, redirecting to home");
-            navigate("/", { replace: true });
-          }
-        } catch (error) {
-          console.error("Error checking user role:", error);
-          setErrorMessage("Error checking user role. Please try again.");
-        }
-      }
-    });
-
-    // Check initial session
-    const checkSession = async () => {
-      if (!mounted) return;
+    const handleRedirection = async (session) => {
+      if (!isMounted || hasRedirected || !session?.user) return;
 
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        console.log("Initial session check:", session?.user?.email);
+        console.log("Fetching user role...");
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("email", session.user.email)
+          .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching profile:", error);
+          setErrorMessage("Error fetching user role. Please try again.");
+          return;
+        }
 
+        console.log("User role fetched:", profile?.role);
+
+        // Redirect based on user role
+        setHasRedirected(true); // Prevent future redirections
+        if (profile?.role === "admin") {
+          navigate("/adminpanelumez", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
+      } catch (error) {
+        console.error("Redirection error:", error);
+        setErrorMessage("Unexpected error. Please try again.");
+      } finally {
+        if (isMounted) setIsInitializing(false);
+      }
+    };
+
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("email", session.user.email)
-            .single();
-
-          if (profileError) throw profileError;
-
-          if (profile?.role === "admin") {
-            navigate("/adminpanelumez", { replace: true });
-          } else {
-            navigate("/", { replace: true });
-          }
+          console.log("Initial session check:", session);
+          await handleRedirection(session);
+        } else {
+          setIsInitializing(false);
         }
       } catch (error) {
         console.error("Session check error:", error);
-      } finally {
-        if (mounted) {
-          setIsInitializing(false);
-        }
+        setErrorMessage("Session check failed. Please try again.");
+        setIsInitializing(false);
       }
     };
 
     checkSession();
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN") {
+        console.log("User signed in. Redirecting...");
+        await handleRedirection(session);
+      } else if (event === "SIGNED_OUT") {
+        console.log("User signed out. Redirecting to login...");
+        setHasRedirected(false); // Reset redirection flag on logout
+        navigate("/auth", { replace: true });
+      }
+    });
+
     return () => {
-      mounted = false;
+      isMounted = false; // Cleanup on component unmount
       subscription.unsubscribe();
     };
-  }, [navigate]);
-
-  const getErrorMessage = (error) => {
-    switch (error?.code) {
-      case "invalid_credentials":
-        return "Invalid email or password. Please check your credentials.";
-      case "email_not_confirmed":
-        return "Please verify your email address before signing in.";
-      default:
-        return error.message;
-    }
-  };
+  }, [navigate, hasRedirected]);
 
   if (isInitializing) {
     return (
@@ -127,34 +107,21 @@ const Auth = () => {
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
           )}
-          {isLoading ? (
-            <div className="flex justify-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <SupabaseAuth
-              supabaseClient={supabase}
-              appearance={{
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: "rgb(234, 56, 76)",
-                      brandAccent: "rgba(234, 56, 76, 0.8)",
-                    },
+          <SupabaseAuth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: "rgb(234, 56, 76)",
+                    brandAccent: "rgba(234, 56, 76, 0.8)",
                   },
                 },
-                className: {
-                  container: "space-y-4",
-                  button: "w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors",
-                  input: "w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary/20",
-                },
-              }}
-              theme="default"
-              providers={[]}
-              onlyThirdPartyProviders={false}
-            />
-          )}
+              },
+            }}
+            providers={[]}
+          />
         </CardContent>
       </Card>
     </div>

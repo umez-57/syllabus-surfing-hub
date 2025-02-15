@@ -2,6 +2,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { Navbar } from "@/components/Navbar";
 
 const Index = () => {
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />

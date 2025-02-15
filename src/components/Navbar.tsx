@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { StickyNote } from "lucide-react";
+import { StickyNote, Calendar } from "lucide-react"; // Added Calendar icon
 import {
   Tooltip,
   TooltipContent,
@@ -61,6 +61,24 @@ export const Navbar = () => {
         
         <div className="flex items-center space-x-4">
           <TooltipProvider>
+            {/* Timetable Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-white hover:text-white hover:bg-primary/80"
+                  onClick={() => navigate("/timetable")}
+                >
+                  <Calendar className="mr-2" />
+                  Timetable
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Manage your Timetable</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Notes Button */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
