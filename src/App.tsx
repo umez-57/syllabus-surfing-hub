@@ -9,7 +9,6 @@ import { FileManagement } from "./components/admin/FileManagement";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotesHome } from "./pages/NotesHome";
-import TimetableScheduler from "./pages/TimetableScheduler"; // Import the new Timetable Scheduler component
 
 const queryClient = new QueryClient();
 
@@ -129,8 +128,7 @@ const App = () => {
             {/* Notes route */}
             <Route path="/notes" element={<NotesHome />} />
 
-            {/* Timetable Scheduler route */}
-            <Route path="/timetable" element={<TimetableScheduler />} />
+           
 
             {/* Admin route */}
             <Route

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { StickyNote, Calendar } from "lucide-react"; // Added Calendar icon
+import { StickyNote, Calendar, BookOpen } from "lucide-react"; // Added BookOpen icon
 import {
   Tooltip,
   TooltipContent,
@@ -61,17 +61,38 @@ export const Navbar = () => {
         
         <div className="flex items-center space-x-4">
           <TooltipProvider>
-            {/* Timetable Button */}
+            {/* Mock Course Registration Button (External Link) */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-white hover:text-white hover:bg-primary/80"
-                  onClick={() => navigate("/timetable")}
-                >
-                  <Calendar className="mr-2" />
-                  Timetable
-                </Button>
+                <a href="https://vitapmockcourseregistration.streamlit.app/" target="_blank" rel="noopener noreferrer">
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:text-white hover:bg-primary/80"
+                  >
+                    <BookOpen className="mr-2" />
+                    Mock Course <br />
+                    Registration
+                  </Button>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Mock Course Registration</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Timetable Scheduler Button (External Link) */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href="https://vitaptimetablescheduler.streamlit.app/" target="_blank" rel="noopener noreferrer">
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:text-white hover:bg-primary/80"
+                  >
+                    <Calendar className="mr-2" />
+                    Timetable <br />
+                    Scheduler
+                  </Button>
+                </a>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Manage your Timetable</p>
@@ -95,6 +116,8 @@ export const Navbar = () => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
+          {/* PYQ Button */}
           <Button
             variant="ghost"
             className="text-white hover:text-white hover:bg-primary/80"
@@ -102,6 +125,8 @@ export const Navbar = () => {
           >
             PYQ
           </Button>
+
+          {/* Authentication Buttons */}
           {isAuthenticated ? (
             <Button
               variant="secondary"
