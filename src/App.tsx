@@ -2,15 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { FileManagement } from "./components/admin/FileManagement";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotesHome } from "./pages/NotesHome";
-import PrivacyPolicy from "./pages/PrivacyPolicy"; // Import Privacy Policy Page
-import TermsOfService from "./pages/TermsOfService"; // Import Terms of Service Page
+import PrivacyPolicy from "./pages/PrivacyPolicy"; // Privacy Policy Page
+import TermsOfService from "./pages/TermsOfService"; // Terms of Service Page
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -110,7 +110,7 @@ const App = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -120,7 +120,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
@@ -144,10 +144,10 @@ const App = () => {
               }
             />
 
-            {/* Catch-All (Optional) */}
+            {/* 404 Page - Redirect to Home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </BrowserRouter>
+        </Router>
       </TooltipProvider>
     </QueryClientProvider>
   );
