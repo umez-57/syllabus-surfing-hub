@@ -9,6 +9,8 @@ import { FileManagement } from "./components/admin/FileManagement";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { NotesHome } from "./pages/NotesHome";
+import PrivacyPolicy from "./pages/PrivacyPolicy"; // Import Privacy Policy Page
+import TermsOfService from "./pages/TermsOfService"; // Import Terms of Service Page
 
 const queryClient = new QueryClient();
 
@@ -18,31 +20,31 @@ const App = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    let isMounted = true; // Ensure the component is mounted to avoid race conditions
-  
+    let isMounted = true; // Prevent updates on unmounted component
+
     const checkAuth = async () => {
       try {
-        setIsLoading(true); // Start loading state
-  
-        // Check session
+        setIsLoading(true);
+
+        // Fetch session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  
+
         if (sessionError || !session) {
           console.error("No session found or session error:", sessionError);
           if (isMounted) {
             setIsAuthenticated(false);
             setIsAdmin(false);
           }
-          <Navigate to="/" replace />
+          return;
         }
-  
-        // Fetch user role from the "profiles" table
+
+        // Fetch user role from "profiles" table
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
           .eq("email", session.user.email)
           .single();
-  
+
         if (profileError) {
           console.error("Error fetching profile:", profileError);
           if (isMounted) {
@@ -51,9 +53,7 @@ const App = () => {
           }
           return;
         }
-  
-        console.log("Profile fetched:", profile);
-  
+
         if (isMounted) {
           setIsAuthenticated(true);
           setIsAdmin(profile?.role === "admin");
@@ -64,19 +64,20 @@ const App = () => {
           setIsAuthenticated(false);
           setIsAdmin(false);
         }
-      }
-      if (isMounted) {
-        setIsLoading(false);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
-  
-    // Call `checkAuth` on component mount
+
+    // Initial check
     checkAuth();
-    
+
     // Listen for auth state changes
     const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event);
-  
+
       if (event === "SIGNED_OUT") {
         console.log("User signed out.");
         if (isMounted) {
@@ -85,23 +86,23 @@ const App = () => {
         }
         return;
       }
-  
+
       if (event === "SIGNED_IN" && session) {
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
           .eq("email", session.user.email)
           .single();
-        
+
         if (isMounted) {
           setIsAuthenticated(true);
           setIsAdmin(profile?.role === "admin");
         }
       }
     });
-  
+
     return () => {
-      isMounted = false; // Cleanup to prevent updates on unmounted component
+      isMounted = false; // Prevent memory leaks
       subscription.unsubscribe(); // Unsubscribe from auth state changes
     };
   }, []);
@@ -121,16 +122,14 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
+            {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Auth />} />
-
-            {/* Notes route */}
             <Route path="/notes" element={<NotesHome />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
 
-           
-
-            {/* Admin route */}
+            {/* Admin Route */}
             <Route
               path="/adminpanelumez"
               element={
@@ -145,7 +144,8 @@ const App = () => {
               }
             />
 
-            {/* Catch-all or other routes could go here */}
+            {/* Catch-All (Optional) */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

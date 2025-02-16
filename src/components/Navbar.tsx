@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { StickyNote, Calendar, BookOpen } from "lucide-react"; // Added BookOpen icon
+import { StickyNote, Calendar, BookOpen, ShieldCheck, FileText } from "lucide-react"; // Added icons for Privacy & TOS
 import {
   Tooltip,
   TooltipContent,
@@ -113,6 +113,40 @@ export const Navbar = () => {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Coming Soon!</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Privacy Policy Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-white hover:text-white hover:bg-primary/80"
+                  onClick={() => navigate("/privacy-policy")}
+                >
+                  <ShieldCheck className="mr-2" />
+                  Privacy Policy
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View our Privacy Policy</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Terms of Service Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="text-white hover:text-white hover:bg-primary/80"
+                  onClick={() => navigate("/terms-of-service")}
+                >
+                  <FileText className="mr-2" />
+                  Terms of Service
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>View our Terms of Service</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
