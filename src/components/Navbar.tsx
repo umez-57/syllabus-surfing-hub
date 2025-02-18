@@ -75,7 +75,7 @@ export const Navbar = () => {
         <div className="flex items-center space-x-2 h-[70px]">
           <a href="." className="flex items-center">
             <img
-              src="/vit.png"
+              src="https://ibb.co/pk3vZkG"
               alt="VIT Logo"
               className="h-[120px] w-auto object-cover md:h-[150px]"
             />
