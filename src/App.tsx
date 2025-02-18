@@ -24,50 +24,50 @@ const App = () => {
   useEffect(() => {
     let mounted = true; // track if component is still mounted
 
-    const checkAuth = async () => {
+    // Wrap the logic in an IIFE to ensure the "finally" always runs
+    (async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
-
         // 1) Get the current session
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
-
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
           console.error("Session error:", sessionError);
-          // No session or an error => user is not authenticated
           if (mounted) {
             setIsAuthenticated(false);
             setIsAdmin(false);
           }
-        } else if (!session) {
+          return; // still goes to finally block
+        }
+
+        if (!session) {
           console.log("No session found");
           if (mounted) {
             setIsAuthenticated(false);
             setIsAdmin(false);
           }
-        } else {
-          // 2) We have a valid session => fetch user role
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("email", session.user.email)
-            .single();
+          return; // still goes to finally block
+        }
 
-          if (profileError) {
-            console.error("Profile error:", profileError);
-            if (mounted) {
-              setIsAuthenticated(false);
-              setIsAdmin(false);
-            }
-          } else {
-            // Mark user as authenticated; check role
-            if (mounted) {
-              setIsAuthenticated(true);
-              setIsAdmin(profile?.role === "admin");
-            }
+        // 2) We have a valid session => fetch user role
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("email", session.user.email)
+          .single();
+
+        if (profileError) {
+          console.error("Profile error:", profileError);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsAdmin(false);
           }
+          return; // still goes to finally block
+        }
+
+        // Mark user as authenticated; check role
+        if (mounted) {
+          setIsAuthenticated(true);
+          setIsAdmin(profile?.role === "admin");
         }
       } catch (err) {
         console.error("Error in auth check:", err);
@@ -76,15 +76,11 @@ const App = () => {
           setIsAdmin(false);
         }
       } finally {
-        // Always clear loading
         if (mounted) {
           setIsLoading(false);
         }
       }
-    };
-
-    // Initial check
-    checkAuth();
+    })();
 
     // Subscribe to auth changes
     const { data: subscription } = supabase.auth.onAuthStateChange(
@@ -122,7 +118,6 @@ const App = () => {
     };
   }, []);
 
-  // If still loading, show a spinner
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

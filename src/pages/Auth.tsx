@@ -5,17 +5,22 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert as SonnerAlert } from "sonner"; // If you have a separate Alert import, adjust as needed
 
 const Auth = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const [isInitializing, setIsInitializing] = useState(true); // Initialization loading state
-  const [hasRedirected, setHasRedirected] = useState(false); // Prevent multiple redirections
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
-    let isMounted = true; // To prevent state updates on unmounted component
+    let isMounted = true; // Prevent state updates on unmounted component
 
-    const handleRedirection = async (session) => {
+    /**
+     * After sign-in, fetch the user’s role from "profiles".
+     * If found, redirect to admin panel or home.
+     */
+    const handleRedirection = async (session: any) => {
       if (!isMounted || hasRedirected || !session?.user) return;
 
       try {
@@ -29,57 +34,84 @@ const Auth = () => {
         if (error) {
           console.error("Error fetching profile:", error);
           setErrorMessage("Error fetching user role. Please try again.");
+          setIsInitializing(false); // ensure spinner stops
           return;
         }
 
         console.log("User role fetched:", profile?.role);
 
-        // Redirect based on user role
-        setHasRedirected(true); // Prevent future redirections
+        // Mark that we've already redirected once
+        setHasRedirected(true);
+
         if (profile?.role === "admin") {
           navigate("/adminpanelumez", { replace: true });
         } else {
           navigate("/", { replace: true });
         }
-      } catch (error) {
-        console.error("Redirection error:", error);
+      } catch (err) {
+        console.error("Redirection error:", err);
         setErrorMessage("Unexpected error. Please try again.");
       } finally {
+        // Always ensure we stop loading
         if (isMounted) setIsInitializing(false);
       }
     };
 
+    /**
+     * On mount, check if there's a current session.
+     */
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error("Session check error:", error);
+          setErrorMessage("Session check failed. Please try again.");
+          if (isMounted) setIsInitializing(false);
+          return;
+        }
+
         if (session?.user) {
-          console.log("Initial session check:", session);
+          console.log("Initial session found:", session);
           await handleRedirection(session);
         } else {
-          setIsInitializing(false);
+          // No session => stop loading
+          if (isMounted) setIsInitializing(false);
         }
-      } catch (error) {
-        console.error("Session check error:", error);
+      } catch (err) {
+        console.error("Session check error:", err);
         setErrorMessage("Session check failed. Please try again.");
-        setIsInitializing(false);
+        if (isMounted) setIsInitializing(false);
       }
     };
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN") {
-        console.log("User signed in. Redirecting...");
+    /**
+     * Listen for auth state changes:
+     * - SIGNED_IN => fetch role & redirect
+     * - SIGNED_OUT => navigate to "/login"
+     */
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+
+      if (event === "SIGNED_IN" && session) {
+        console.log("User just signed in. Attempting redirection...");
         await handleRedirection(session);
       } else if (event === "SIGNED_OUT") {
-        console.log("User signed out. Redirecting to login...");
-        setHasRedirected(false); // Reset redirection flag on logout
-        navigate("/auth", { replace: true });
+        console.log("User signed out. Redirecting to /login...");
+        setHasRedirected(false);
+        navigate("/login", { replace: true });
       }
     });
 
     return () => {
-      isMounted = false; // Cleanup on component unmount
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, hasRedirected]);
@@ -97,9 +129,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold tracking-tight">Welcome back</CardTitle>
-          <CardDescription>
-            Sign in to your account or create a new one
-          </CardDescription>
+          <CardDescription>Sign in to your account or create a new one</CardDescription>
         </CardHeader>
         <CardContent>
           {errorMessage && (
