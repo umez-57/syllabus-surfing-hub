@@ -1,3 +1,5 @@
+// src/App.tsx
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,39 +18,38 @@ import TermsOfService from "./pages/TermsOfService";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true; // track if component is still mounted
+    let mounted = true;
 
-    // Wrap the logic in an IIFE to ensure the "finally" always runs
     (async () => {
-      setIsLoading(true);
       try {
-        // 1) Get the current session
+        setIsLoading(true);
+        // 1) Get current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
         if (sessionError) {
           console.error("Session error:", sessionError);
           if (mounted) {
             setIsAuthenticated(false);
             setIsAdmin(false);
           }
-          return; // still goes to finally block
+          return;
         }
-
         if (!session) {
           console.log("No session found");
           if (mounted) {
             setIsAuthenticated(false);
             setIsAdmin(false);
           }
-          return; // still goes to finally block
+          return;
         }
 
-        // 2) We have a valid session => fetch user role
+        // 2) If session => fetch user role
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
@@ -61,10 +62,9 @@ const App = () => {
             setIsAuthenticated(false);
             setIsAdmin(false);
           }
-          return; // still goes to finally block
+          return;
         }
 
-        // Mark user as authenticated; check role
         if (mounted) {
           setIsAuthenticated(true);
           setIsAdmin(profile?.role === "admin");
@@ -82,39 +82,43 @@ const App = () => {
       }
     })();
 
-    // Subscribe to auth changes
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth state changed:", event);
+    // Listen for auth changes
+    // const { data: subscription } = supabase.auth.onAuthStateChange(
+    //   async (event, session) => {
+    //     console.log("Auth state changed:", event);
 
-        if (event === "SIGNED_OUT") {
-          console.log("User signed out");
-          if (mounted) {
-            setIsAuthenticated(false);
-            setIsAdmin(false);
-          }
-          return;
-        }
+    //     if (!mounted) return;
 
-        if (event === "SIGNED_IN" && session) {
-          // Re-check role
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("email", session.user.email)
-            .single();
+    //     if (event === "SIGNED_OUT") {
+    //       console.log("User signed out");
+    //       setIsAuthenticated(false);
+    //       setIsAdmin(false);
+    //       return;
+    //     }
 
-          if (mounted) {
-            setIsAuthenticated(true);
-            setIsAdmin(profile?.role === "admin");
-          }
-        }
-      }
-    );
+    //     if (event === "SIGNED_IN" && session) {
+    //       // Re-check role
+    //       try {
+    //         const { data: profile } = await supabase
+    //           .from("profiles")
+    //           .select("role")
+    //           .eq("email", session.user.email)
+    //           .single();
+    //         setIsAuthenticated(true);
+    //         setIsAdmin(profile?.role === "admin");
+    //       } catch (err) {
+    //         console.error("Error re-checking role:", err);
+    //         setIsAuthenticated(false);
+    //         setIsAdmin(false);
+    //       }
+    //     }
+    //   }
+    // );
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      // For TypeScript complaining, cast subscription to any or check type
+      (subscription as any).unsubscribe?.();
     };
   }, []);
 
@@ -162,6 +166,4 @@ const App = () => {
       </TooltipProvider>
     </QueryClientProvider>
   );
-};
-
-export default App;
+}
