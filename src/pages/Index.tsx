@@ -9,7 +9,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12 animate-fadeIn">
           <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-            VIT-AP<br />
+            VIT AP<br />
             Study Hub
           </h1>
           <p className="text-xl text-gray-600">
