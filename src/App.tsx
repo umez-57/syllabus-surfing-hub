@@ -16,6 +16,9 @@ import { NotesHome } from "./pages/NotesHome";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
+// >>> ADD THIS <<<
+import Guide from "./pages/Guide";
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -29,8 +32,12 @@ export default function App() {
     (async () => {
       try {
         setIsLoading(true);
+
         // 1) Get current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
 
         if (sessionError) {
           console.error("Session error:", sessionError);
@@ -49,7 +56,7 @@ export default function App() {
           return;
         }
 
-        // 2) If session => fetch user role
+        // 2) We have a valid session => fetch user role
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
@@ -82,22 +89,18 @@ export default function App() {
       }
     })();
 
-    // Listen for auth changes
+    // Optionally re-enable if needed
     // const { data: subscription } = supabase.auth.onAuthStateChange(
     //   async (event, session) => {
     //     console.log("Auth state changed:", event);
-
     //     if (!mounted) return;
 
     //     if (event === "SIGNED_OUT") {
-    //       console.log("User signed out");
     //       setIsAuthenticated(false);
     //       setIsAdmin(false);
     //       return;
     //     }
-
     //     if (event === "SIGNED_IN" && session) {
-    //       // Re-check role
     //       try {
     //         const { data: profile } = await supabase
     //           .from("profiles")
@@ -106,8 +109,8 @@ export default function App() {
     //           .single();
     //         setIsAuthenticated(true);
     //         setIsAdmin(profile?.role === "admin");
-    //       } catch (err) {
-    //         console.error("Error re-checking role:", err);
+    //       } catch (error) {
+    //         console.error("Re-check role error:", error);
     //         setIsAuthenticated(false);
     //         setIsAdmin(false);
     //       }
@@ -117,8 +120,8 @@ export default function App() {
 
     return () => {
       mounted = false;
-      // For TypeScript complaining, cast subscription to any or check type
-      (subscription as any).unsubscribe?.();
+      // if subscription is re-enabled, cast to any:
+      // (subscription as any)?.unsubscribe?.();
     };
   }, []);
 
@@ -143,6 +146,9 @@ export default function App() {
             <Route path="/notes" element={<NotesHome />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+
+            {/* >>> ADD THIS ROUTE FOR THE GUIDE <<< */}
+            <Route path="/guide" element={<Guide />} />
 
             {/* Admin Route */}
             <Route
