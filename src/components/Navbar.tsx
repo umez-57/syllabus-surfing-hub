@@ -130,7 +130,7 @@ export const Navbar = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  href="https://vitaptimetablescheduler.streamlit.app/"
+                  href="https://timetable.vitaphub.in/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
