@@ -9,15 +9,19 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+// Old homepage component (previously at "/")
 import Index from "./pages/Index";
+
+// Auth + other pages
 import Auth from "./pages/Auth";
 import { FileManagement } from "./components/admin/FileManagement";
 import { NotesHome } from "./pages/NotesHome";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-
-// >>> ADD THIS <<<
 import Guide from "./pages/Guide";
+
+// >>> LandingPage now has a default export <<<
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -89,39 +93,8 @@ export default function App() {
       }
     })();
 
-    // Optionally re-enable if needed
-    // const { data: subscription } = supabase.auth.onAuthStateChange(
-    //   async (event, session) => {
-    //     console.log("Auth state changed:", event);
-    //     if (!mounted) return;
-
-    //     if (event === "SIGNED_OUT") {
-    //       setIsAuthenticated(false);
-    //       setIsAdmin(false);
-    //       return;
-    //     }
-    //     if (event === "SIGNED_IN" && session) {
-    //       try {
-    //         const { data: profile } = await supabase
-    //           .from("profiles")
-    //           .select("role")
-    //           .eq("email", session.user.email)
-    //           .single();
-    //         setIsAuthenticated(true);
-    //         setIsAdmin(profile?.role === "admin");
-    //       } catch (error) {
-    //         console.error("Re-check role error:", error);
-    //         setIsAuthenticated(false);
-    //         setIsAdmin(false);
-    //       }
-    //     }
-    //   }
-    // );
-
     return () => {
       mounted = false;
-      // if subscription is re-enabled, cast to any:
-      // (subscription as any)?.unsubscribe?.();
     };
   }, []);
 
@@ -140,14 +113,18 @@ export default function App() {
         <Sonner />
         <Router>
           <Routes>
+            {/*
+              LandingPage at "/"
+              Old homepage (Index) at "/home"
+            */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<Index />} />
+
             {/* Public Routes */}
-            <Route path="/" element={<Index />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/notes" element={<NotesHome />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
-
-            {/* >>> ADD THIS ROUTE FOR THE GUIDE <<< */}
             <Route path="/guide" element={<Guide />} />
 
             {/* Admin Route */}
@@ -165,7 +142,7 @@ export default function App() {
               }
             />
 
-            {/* 404 Page -> Redirect to Home */}
+            {/* 404 fallback -> Landing Page */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

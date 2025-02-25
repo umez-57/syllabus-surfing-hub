@@ -15,6 +15,7 @@ export function NotesSearchBar({ department_id }: NotesSearchBarProps) {
   const [visibleCount, setVisibleCount] = useState(6);
   const { toast } = useToast();
 
+  // React Query to fetch notes
   const { data: notes = [], isLoading } = useQuery({
     queryKey: ["notes", department_id, searchText],
     queryFn: async () => {
@@ -51,21 +52,26 @@ export function NotesSearchBar({ department_id }: NotesSearchBarProps) {
         return [];
       }
     },
-    staleTime: 1000 * 60,
+    staleTime: 60_000, // 1 minute
   });
 
+  // Show only up to "visibleCount" items
   const displayedNotes = notes.slice(0, visibleCount);
 
+  // Load more by increments of 6
   const handleLoadMore = () => setVisibleCount((prev) => prev + 6);
+
+  // Handle search updates
   const handleSearchChange = (value: string) => setSearchText(value);
 
   return (
-    <div className="space-y-8 w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-screen-xl mx-auto px-4 py-8 space-y-8">
+      {/* Search Input */}
       <div className="relative w-full">
         <Input
           type="search"
           placeholder="Search for notes..."
-          className="pl-10 pr-4 py-6 text-lg rounded-xl border-2 border-accent hover:border-primary/20"
+          className="pl-10 pr-4 py-6 text-lg rounded-xl border-2 border-accent hover:border-primary/20 w-full"
           value={searchText}
           onChange={(e) => handleSearchChange(e.target.value)}
         />
@@ -75,34 +81,49 @@ export function NotesSearchBar({ department_id }: NotesSearchBarProps) {
         />
       </div>
 
+      {/* Loading or Notes Grid */}
       {isLoading ? (
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayedNotes.length > 0 ? (
-            displayedNotes.map((note) => (
-              <NotesCard
-                key={note.id}
-                id={note.id}
-                title={note.title}
-                description={note.description}
-                department_id={note.department_id}
-                course_code={note.course_code}
-                file_path={note.file_path}
-                file_name={note.file_name}
-                notes_by={note.notes_by}
-              />
-            ))
-          ) : (
-            <div className="col-span-full text-center text-gray-500">
-              {searchText
-                ? "No notes found matching your search."
-                : "No notes found for this department yet."}
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 place-items-center">
+            {displayedNotes.length > 0 ? (
+              displayedNotes.map((note: any) => (
+                <NotesCard
+                  key={note.id}
+                  id={note.id}
+                  title={note.title}
+                  description={note.description}
+                  department_id={note.department_id}
+                  course_code={note.course_code}
+                  file_path={note.file_path}
+                  file_name={note.file_name}
+                  notes_by={note.notes_by}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center text-gray-500">
+                {searchText
+                  ? "No notes found matching your search."
+                  : "No notes found for this department yet."}
+              </div>
+            )}
+          </div>
+
+          {/* Load More */}
+          {displayedNotes.length < notes.length && displayedNotes.length > 0 && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={handleLoadMore}
+                className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+              >
+                Load More
+              </button>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

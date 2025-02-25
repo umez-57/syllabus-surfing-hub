@@ -1,42 +1,34 @@
 import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import { Download, Eye, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { toast } from "sonner";
-import { ClipLoader } from "react-spinners"; // Import loader
+import { ClipLoader } from "react-spinners";
 
 interface SyllabusCardProps {
   title: string;
   code: string;
   description: string;
   credits: number;
-  filePath: string; // File path in Supabase
-  fileName: string; // File name
+  filePath: string;
+  fileName: string;
 }
 
-export const SyllabusCard = ({
+export function SyllabusCard({
   title,
   code,
   description,
   credits,
   filePath,
   fileName,
-}: SyllabusCardProps) => {
+}: SyllabusCardProps) {
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  const [user, setUser] = useState(null);
-  const [loadingView, setLoadingView] = useState(false); // Loader for View button
-  const [loadingDownload, setLoadingDownload] = useState(false); // Loader for Download button
+  const [user, setUser] = useState<any>(null);
+  const [loadingView, setLoadingView] = useState(false);
+  const [loadingDownload, setLoadingDownload] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,11 +46,9 @@ export const SyllabusCard = ({
       toast.error("File path is missing for viewing.");
       return;
     }
-
-    setLoadingView(true); // Show loader for View
+    setLoadingView(true);
     try {
       const fullPath = filePath.startsWith("files/") ? filePath : `files/${filePath}`;
-
       const { data, error } = await supabase.storage.from("syllabi").download(fullPath);
 
       if (error) {
@@ -73,7 +63,7 @@ export const SyllabusCard = ({
       console.error("Error viewing file:", error);
       toast.error("Failed to load file.");
     } finally {
-      setLoadingView(false); // Hide loader
+      setLoadingView(false);
     }
   };
 
@@ -83,16 +73,13 @@ export const SyllabusCard = ({
       navigate("/login");
       return;
     }
-
     if (!filePath) {
       toast.error("File path is missing for download.");
       return;
     }
-
-    setLoadingDownload(true); // Show loader for Download
+    setLoadingDownload(true);
     try {
       const fullPath = filePath.startsWith("files/") ? filePath : `files/${filePath}`;
-
       const { data, error } = await supabase.storage.from("syllabi").download(fullPath);
 
       if (error) {
@@ -115,76 +102,208 @@ export const SyllabusCard = ({
       console.error("Error downloading file:", error);
       toast.error("Failed to download file.");
     } finally {
-      setLoadingDownload(false); // Hide loader
+      setLoadingDownload(false);
     }
   };
 
   return (
-    <>
-      <Card className="w-full max-w-md animate-fadeIn hover:shadow-lg transition-all border-red-100">
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold text-primary">{title}</CardTitle>
-          <CardDescription>
-            Course Code: {code} | Credits: {credits}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-600">{description}</p>
-        </CardContent>
-        <CardFooter className="flex justify-between gap-2">
-          <Button
-            variant="outline"
+    <StyledWrapper>
+      <div className="brutalist-card">
+        <div className="brutalist-card__header">
+          <div className="brutalist-card__icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 2C6.48 2 2 6.48 
+                   2 12s4.48 10 10 10 
+                   10-4.48 10-10S17.52 2 12 2zm1 
+                   15h-2v-2h2v2zm0-4h-2V7h2v6z"
+              />
+            </svg>
+          </div>
+          <div className="brutalist-card__alert">{title}</div>
+        </div>
+
+        <div className="brutalist-card__message">
+          <strong>Course Code:</strong> {code} | <strong>Credits:</strong> {credits}
+          <br />
+          {description}
+        </div>
+
+        <div className="brutalist-card__actions">
+          <a
+            className="brutalist-card__button brutalist-card__button--mark"
             onClick={handleView}
-            className="border-primary/20 hover:bg-primary/5"
-            disabled={loadingView} // Disable View button while loading
           >
             {loadingView ? (
-              <ClipLoader size={16} color="#4F46E5" /> // Loader for View
+              <ClipLoader size={16} color="#000" />
             ) : (
               <>
-                <Eye className="mr-2 h-4 w-4" />
+                <Eye style={{ marginRight: 4 }} />
                 View
               </>
             )}
-          </Button>
-          <Button
-            variant="outline"
+          </a>
+          <a
+            className="brutalist-card__button brutalist-card__button--read"
             onClick={handleDownload}
-            className="border-primary/20 hover:bg-primary/5"
-            disabled={loadingDownload} // Disable Download button while loading
           >
             {loadingDownload ? (
-              <ClipLoader size={16} color="#4F46E5" /> // Loader for Download
+              <ClipLoader size={16} color="#fff" />
             ) : (
               <>
-                <Download className="mr-2 h-4 w-4" />
+                <Download style={{ marginRight: 4 }} />
                 Download
               </>
             )}
-          </Button>
-        </CardFooter>
-      </Card>
+          </a>
+        </div>
+      </div>
 
-      {/* Modal for Viewing PDF */}
       {pdfBlobUrl && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
           <div className="relative w-full max-w-4xl h-3/4 bg-white rounded-lg shadow-lg">
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer fileUrl={pdfBlobUrl} />
             </Worker>
-            <Button
+            <button
               onClick={() => {
                 URL.revokeObjectURL(pdfBlobUrl);
                 setPdfBlobUrl(null);
               }}
-              className="absolute top-2 right-2 bg-red-500 text-white hover:bg-red-600"
+              className="absolute top-2 right-2 bg-red-500 text-white hover:bg-red-600 px-3 py-1 flex items-center"
             >
               <X className="mr-2 h-4 w-4" />
               Close
-            </Button>
+            </button>
           </div>
         </div>
       )}
-    </>
+    </StyledWrapper>
   );
-};
+}
+
+const StyledWrapper = styled.div`
+  .brutalist-card {
+    width: 320px;
+    min-height:  400px;
+    border: 4px solid #000;
+    background-color: #fff;
+    padding: 1.5rem;
+    box-shadow: 5px 5px 0 #fff;
+    font-family: "Arial", sans-serif;
+  }
+
+  .brutalist-card__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #000;
+    padding-bottom: 1rem;
+  }
+
+  .brutalist-card__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
+    padding: 0.5rem;
+  }
+
+  .brutalist-card__icon svg {
+    height: 1.5rem;
+    width: 1.5rem;
+    fill: #fff;
+  }
+
+  .brutalist-card__alert {
+    font-weight: 900;
+    color: #000;
+    font-size: 1.rem;
+    text-transform: uppercase;
+  }
+
+  .brutalist-card__message {
+    margin-top: 1rem;
+    color: #000;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    border-bottom: 2px solid #fff;
+    padding-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .brutalist-card__actions {
+    margin-top: 1rem;
+  }
+
+  .brutalist-card__button {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 3px solid #000;
+    background-color: #fff;
+    color: #000;
+    position: relative;
+    transition: all 0.2s ease;
+    box-shadow: 5px 5px 0 #000;
+    overflow: hidden;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
+
+  .brutalist-card__button--read {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .brutalist-card__button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: all 0.6s;
+  }
+
+  .brutalist-card__button:hover::before {
+    left: 100%;
+  }
+
+  .brutalist-card__button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 #000;
+  }
+
+  .brutalist-card__button--mark:hover {
+    background-color: #296fbb;
+    border-color: #296fbb;
+    color: #fff;
+    box-shadow: 7px 7px 0 #004280;
+  }
+
+  .brutalist-card__button--read:hover {
+    background-color: #ff0000;
+    border-color: #ff0000;
+    color: #fff;
+    box-shadow: 7px 7px 0 #800000;
+  }
+
+  .brutalist-card__button:active {
+    transform: translate(5px, 5px);
+    box-shadow: none;
+  }
+`;

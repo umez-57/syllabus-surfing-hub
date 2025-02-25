@@ -8,41 +8,36 @@ import { useToast } from "@/components/ui/use-toast";
 
 export const SearchBar = () => {
   const [search, setSearch] = useState("");
-  const [visibleCount, setVisibleCount] = useState(6); 
-  // Default to 6 so only 2 rows appear on large screens if no search is applied
-
+  const [visibleCount, setVisibleCount] = useState(6);
   const { toast } = useToast();
 
+  // React Query to fetch syllabi
   const { data: syllabi = [], isLoading } = useQuery({
     queryKey: ["syllabi", search],
     queryFn: async () => {
       try {
         let query = supabase
           .from("syllabi")
-          .select(
-            `
-              id,
-              title,
-              course_code,
-              description,
-              credits,
-              file_path,
-              file_name,
-              department:departments(name),
-              uploader:profiles(email)
-            `
-          )
+          .select(`
+            id,
+            title,
+            course_code,
+            description,
+            credits,
+            file_path,
+            file_name,
+            department:departments(name),
+            uploader:profiles(email)
+          `)
           .order("created_at", { ascending: false });
 
         if (search) {
-          // If user is searching, filter accordingly
           query = query.or(
             `course_code.ilike.%${search}%,title.ilike.%${search}%,description.ilike.%${search}%`
           );
         }
 
         const { data, error } = await query;
-
         if (error) {
           console.error("Error fetching syllabi:", error);
           toast({
@@ -52,7 +47,6 @@ export const SearchBar = () => {
           });
           return [];
         }
-
         return data || [];
       } catch (error) {
         console.error("Error in search query:", error);
@@ -64,40 +58,34 @@ export const SearchBar = () => {
         return [];
       }
     },
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 60_000, // 1 minute
     retry: 2,
     refetchOnWindowFocus: false,
   });
 
-  // Determine if user is searching or not
+  // Are we actively searching?
   const isSearching = search.trim().length > 0;
-
-  // Decide how many items to show per chunk:
-  // - No search → 6 items max
-  // - Search → load in batches of 10
+  // Chunk size for "Load More"
   const chunkSize = isSearching ? 10 : 6;
 
-  // Slice the syllabi array so we only show up to "visibleCount"
+  // Show only up to "visibleCount" syllabi
   const displayedSyllabi = syllabi.slice(0, visibleCount);
 
-  // Handle clicking "Load More"
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + chunkSize);
   };
 
   return (
-    <div className="space-y-8 w-full max-w-4xl mx-auto">
-      {/* SEARCH INPUT */}
-      <div className="relative w-full">
+    <div className="w-full max-w-screen-xl mx-auto px-4 py-8 space-y-8">
+      {/* Search Input */}
+      <div className="relative">
         <Input
           type="search"
           placeholder="Search for any subject syllabus..."
-          className="pl-10 pr-4 py-6 text-lg rounded-xl border-2 border-accent hover:border-primary/20 transition-all"
+          className="pl-10 pr-4 py-6 text-lg rounded-xl border-2 border-accent hover:border-primary/20 transition-all w-full"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            // Whenever search text changes,
-            // reset visibleCount so we start fresh
             setVisibleCount(isSearching ? 10 : 6);
           }}
         />
@@ -107,14 +95,15 @@ export const SearchBar = () => {
         />
       </div>
 
-      {/* LOADING SPINNER OR GRID OF SYLLABI */}
+      {/* Loading or Cards */}
       {isLoading ? (
         <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Card Grid Container */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 place-items-center">
             {displayedSyllabi.length > 0 ? (
               displayedSyllabi.map((syllabus) => (
                 <SyllabusCard
@@ -136,9 +125,8 @@ export const SearchBar = () => {
             )}
           </div>
 
-          {/* LOAD MORE / SEARCH MESSAGE */}
+          {/* Load More / Search Message */}
           {isSearching ? (
-            // If user is searching and we've shown fewer items than exist, show Load More
             displayedSyllabi.length < syllabi.length && (
               <div className="flex justify-center mt-6">
                 <button
@@ -150,8 +138,6 @@ export const SearchBar = () => {
               </div>
             )
           ) : (
-            // If not searching, and we have more items than 6,
-            // just show the "Search for more" message instead of Load More.
             syllabi.length > 6 && (
               <p className="text-center text-gray-600 mt-6">
                 Want to see more? Use the search bar above to find additional syllabi!

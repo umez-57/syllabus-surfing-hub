@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base layer: root variables + dark mode */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -64,9 +65,8 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
-}
 
-@layer base {
+  /* Apply color tokens to everything + body styles */
   * {
     @apply border-border;
   }
@@ -75,20 +75,38 @@
   }
 }
 
+/* Utilities layer: custom classes */
 @layer utilities {
   .perspective-1000 {
     perspective: 1000px;
   }
-  
   .rotate-y-180 {
     transform: rotateY(180deg);
   }
-  
   .preserve-3d {
     transform-style: preserve-3d;
   }
-  
   .backface-hidden {
     backface-visibility: hidden;
+  }
+  
+  /*
+    If you have a custom outline utility like `outline-ring/50`,
+    ensure it’s defined in your tailwind.config or a plugin. 
+    Otherwise, remove or replace it with a valid utility.
+  */
+  /*
+  .some-outline-class {
+    @apply outline-ring/50;
+  }
+  */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
