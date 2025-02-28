@@ -7,9 +7,10 @@ export function NotesHome() {
 
   const departments = [
     { id: "e6cc847f-4113-4a9b-8193-1da79c0327eb", name: "SCOPE (CSE)" },
-    { id: "c768f9c9-ac7d-469c-8e49-4a21f0fd8a21", name: "SENSE (ECE)" },
+    { id: "c768f9c9-ac7d-469c-8e49-4a210f0d8a21", name: "SENSE (ECE)" },
     { id: "aebb09ae-3b6f-4b31-904b-e9a41b318722", name: "SAS (Science)" },
-    { id: "156ac56e-b719-4e78-8d56-762b49e6e689", name: "VISH (Humanities)" },
+    { id: "156ac56e-b719-4e78-8d56-762b49e1e689", name: "VSB (Management)" },
+    { id: "23b4f969-c687-4694-aa47-1455481021da", name: "VISH (Humanities)" },
   ];
 
   return (
