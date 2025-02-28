@@ -3,8 +3,9 @@ import { Hero } from "@/components/hero"
 import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
 import { SearchBar } from "@/components/SearchBar"
-// Import the BlurFade snippet
 import { BlurFade } from "@/components/ui/blur-fade"
+// 1. Import SpeedInsights
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 export default function Index() {
   return (
@@ -15,7 +16,6 @@ export default function Index() {
       <main className="flex-grow pt-16">
         <div className="container mx-auto px-4 py-12">
           <div className="text-center mb-12 animate-fadeIn">
-            {/* Wrap each text line in <BlurFade> */}
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
               <BlurFade duration={0.8} className="inline-block">
                 VIT AP
@@ -41,6 +41,9 @@ export default function Index() {
           <SearchBar />
         </div>
       </main>
+
+      {/* 2. Render the SpeedInsights component */}
+      <SpeedInsights />
 
       <Footer />
     </div>
