@@ -16,10 +16,10 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import { FileManagement } from "./components/admin/FileManagement";
 import { NotesHome } from "./pages/NotesHome";
+import { PyqHome } from "@/pages/PyqHome"; 
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Guide from "./pages/Guide";
-
 // >>> LandingPage now has a default export <<<
 import LandingPage from "./pages/LandingPage";
 
@@ -123,6 +123,7 @@ export default function App() {
             {/* Public Routes */}
             <Route path="/login" element={<Auth />} />
             <Route path="/notes" element={<NotesHome />} />
+            <Route path="/pyq" element={<PyqHome />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/guide" element={<Guide />} />

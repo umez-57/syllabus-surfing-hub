@@ -1,10 +1,13 @@
-import React, { useState } from "react";
-import { NotesSearchBar } from "../components/NotesSearchBar";
-import { Navbar } from "@/components/Navbar";
+// src/pages/PyqHome.tsx
 
-export function NotesHome() {
+import React, { useState } from "react";
+import { PyqSearchBar } from "@/components/PyqSearchBar"; // adjust path
+import { Navbar } from "@/components/Navbar";            // if you want a nav
+
+export function PyqHome() {
   const [selectedDept, setSelectedDept] = useState<string>("");
 
+  // Same department IDs as in your "notes" pages
   const departments = [
     { id: "e6cc847f-4113-4a9b-8193-1da79c0327eb", name: "SCOPE (CSE)" },
     { id: "c768f9c9-ac7d-469c-8e49-4a210f0d8a21", name: "SENSE (ECE)" },
@@ -13,11 +16,10 @@ export function NotesHome() {
     { id: "23b4f969-c687-4694-aa47-1455481021da", name: "VISH (Humanities)" },
   ];
 
-  //hi
-
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
+
       {!selectedDept ? (
         <div className="container mx-auto p-4">
           <h1 className="text-3xl font-bold mb-6">Select Your Department</h1>
@@ -36,7 +38,8 @@ export function NotesHome() {
       ) : (
         <div className="container mx-auto p-4">
           <h1 className="text-3xl font-bold mb-4">
-            Notes for {departments.find((d) => d.id === selectedDept)?.name}
+            Previous Year Papers for{" "}
+            {departments.find((d) => d.id === selectedDept)?.name}
           </h1>
           <p
             className="text-blue-500 cursor-pointer mb-6"
@@ -44,7 +47,7 @@ export function NotesHome() {
           >
             &larr; Change Department
           </p>
-          <NotesSearchBar department_id={selectedDept} />
+          <PyqSearchBar department_id={selectedDept} />
         </div>
       )}
     </div>
