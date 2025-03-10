@@ -120,7 +120,7 @@ const StyledWrapper = styled.div`
     border: 4px solid #000;
     background-color: #fff;
     padding: 1.5rem;
-    box-shadow: 10px 10px 0 #000;
+    box-shadow: 5px 5px 0 #fff;
     font-family: "Arial", sans-serif;
   }
 

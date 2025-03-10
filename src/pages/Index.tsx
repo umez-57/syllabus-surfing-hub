@@ -9,7 +9,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 
 export default function Index() {
   return (
-    <div className="relative min-h-screen bg-black">
+    <div className="relative min-h-screen ">
       <Hero className="absolute inset-0 -z-10" gradient blur />
       <Navbar />
 

@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "@/integrations/supabase/client"
 import { toast } from "@/hooks/use-toast"
 
+// Icons
 import {
   StickyNote,
   Calendar,
   BookOpen,
   Menu,
-  X
+  X,
+  Archive, // For PYQ
 } from "lucide-react"
 
 import {
@@ -81,11 +83,11 @@ export const Navbar = () => {
           </a>
         </div>
 
-        {/* Desktop Toggle (Hamburger) for Mobile */}
+        {/* Mobile Hamburger */}
         <div className="md:hidden">
           <Button
             variant="ghost"
-            className="text-white hover:bg-white/10 p-2"
+            className="text-white hover:text-gray-300 p-2"
             onClick={toggleMobileMenu}
             aria-label="Toggle Menu"
           >
@@ -108,10 +110,7 @@ export const Navbar = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-white/10"
-                  >
+                  <Button variant="ghost" className="text-white hover:text-gray-300">
                     <BookOpen className="mr-2" />
                     <span className="flex flex-col items-start leading-4">
                       <span>Mock Course</span>
@@ -133,10 +132,7 @@ export const Navbar = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-white/10"
-                  >
+                  <Button variant="ghost" className="text-white hover:text-gray-300">
                     <Calendar className="mr-2" />
                     <span className="flex flex-col items-start leading-4">
                       <span>Timetable</span>
@@ -155,7 +151,7 @@ export const Navbar = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="text-white hover:bg-white/10"
+                  className="text-white hover:text-gray-300"
                   onClick={() => navigate("/notes")}
                 >
                   <StickyNote className="mr-2" />
@@ -171,9 +167,10 @@ export const Navbar = () => {
           {/* PYQ Button */}
           <Button
             variant="ghost"
-            className="text-white hover:bg-white/10"
+            className="text-white hover:text-gray-300"
             onClick={() => navigate("/pyq")}
           >
+            <Archive className="mr-2" />
             PYQ
           </Button>
 
@@ -203,7 +200,7 @@ export const Navbar = () => {
         <div className="md:hidden bg-black text-white">
           <div className="px-6 py-3 space-y-2">
             <TooltipProvider>
-              {/* Mock Course Registration */}
+              {/* Mock Course Registration (Mobile) */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <a
@@ -213,7 +210,7 @@ export const Navbar = () => {
                   >
                     <Button
                       variant="ghost"
-                      className="text-white hover:bg-white/10 w-full justify-start"
+                      className="text-white hover:text-gray-300 w-full justify-start"
                     >
                       <BookOpen className="mr-2" />
                       Mock Course Registration
@@ -225,7 +222,7 @@ export const Navbar = () => {
                 </TooltipContent>
               </Tooltip>
 
-              {/* Timetable Scheduler */}
+              {/* Timetable Scheduler (Mobile) */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <a
@@ -235,7 +232,7 @@ export const Navbar = () => {
                   >
                     <Button
                       variant="ghost"
-                      className="text-white hover:bg-white/10 w-full justify-start"
+                      className="text-white hover:text-gray-300 w-full justify-start"
                     >
                       <Calendar className="mr-2" />
                       Timetable Scheduler
@@ -247,12 +244,12 @@ export const Navbar = () => {
                 </TooltipContent>
               </Tooltip>
 
-              {/* Notes */}
+              {/* Notes (Mobile) */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="text-white hover:bg-white/10 w-full justify-start"
+                    className="text-white hover:text-gray-300 w-full justify-start"
                     onClick={() => {
                       setIsMobileMenuOpen(false)
                       navigate("/notes")
@@ -268,19 +265,20 @@ export const Navbar = () => {
               </Tooltip>
             </TooltipProvider>
 
-            {/* PYQ Button */}
+            {/* PYQ (Mobile) */}
             <Button
               variant="ghost"
-              className="text-white hover:bg-white/10 w-full justify-start"
+              className="text-white hover:text-gray-300 w-full justify-start"
               onClick={() => {
                 setIsMobileMenuOpen(false)
                 navigate("/pyq")
               }}
             >
+              <Archive className="mr-2" />
               PYQ
             </Button>
 
-            {/* Auth Buttons */}
+            {/* Auth Buttons (Mobile) */}
             {isAuthenticated ? (
               <Button
                 variant="secondary"
