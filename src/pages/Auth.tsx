@@ -13,12 +13,15 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Hero } from "@/components/hero"; // <-- use your Hero component for background
 
 export default function Auth() {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);
+  const [authView, setAuthView] = useState<"sign_in" | "sign_up" | "magic_link" | "forgotten_password">("sign_in");
+  // ^ optional: track current view from the outside, or let supabase handle internally
 
   useEffect(() => {
     let isMounted = true;
@@ -53,7 +56,10 @@ export default function Auth() {
 
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
         if (error) {
           console.error("Session check error:", error);
           setErrorMessage("Session check failed. Please try again.");
@@ -103,40 +109,52 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Welcome back
-          </CardTitle>
-          <CardDescription>
-            Sign in to your account or create a new one
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {errorMessage && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-          )}
+    <div className="relative min-h-screen text-white">
+      {/* Hero background behind everything */}
+      <Hero className="absolute inset-0 -z-10" gradient blur />
 
-          <SupabaseAuth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: "rgb(234, 56, 76)",
-                    brandAccent: "rgba(234, 56, 76, 0.8)",
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div
+          className="transition-all duration-300 w-full max-w-md"
+          // The "transition-all" helps soften the content swap for sign-in vs sign-up
+        >
+          <Card>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold tracking-tight " >
+                Welcome 
+              </CardTitle>
+              <CardDescription>
+                Sign in or create an account below
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {errorMessage && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
+
+              <SupabaseAuth
+                supabaseClient={supabase}
+                appearance={{
+                  theme: ThemeSupa,
+                  variables: {
+                    default: {
+                      // Adjust these brand colors for a darker theme
+                      colors: {
+                        brand: "#222222", // background for sign in/up forms
+                        brandAccent: "#333333", // accent color for buttons/links
+                      },
+                    },
                   },
-                },
-              },
-            }}
-            providers={[]}
-          />
-        </CardContent>
-      </Card>
+                }}
+                providers={[]}
+                // onViewChange={(view) => setAuthView(view)} // optional, if you want to track sign_in vs sign_up
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
