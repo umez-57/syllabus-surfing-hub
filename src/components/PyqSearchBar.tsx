@@ -101,7 +101,7 @@ export function PyqSearchBar({ department_id }: PyqSearchBarProps) {
         <Input
           type="search"
           placeholder="Search for PYQs..."
-          className="pl-10 pr-4 py-3 text-md rounded-xl border-2 border-accent hover:border-primary/20 w-full"
+          className="pl-10 pr-4 py-3 text-md text-black rounded-xl border-2 border-accent hover:border-primary/20 w-full"
           value={searchText}
           onChange={(e) => handleSearchChange(e.target.value)}
         />

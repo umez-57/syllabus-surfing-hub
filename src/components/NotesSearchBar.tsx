@@ -71,7 +71,7 @@ export function NotesSearchBar({ department_id }: NotesSearchBarProps) {
         <Input
           type="search"
           placeholder="Search for notes..."
-          className="pl-10 pr-4 py-6 text-lg rounded-xl border-2 border-accent hover:border-primary/20 w-full"
+          className="pl-10 pr-4 py-6 text-black text-lg rounded-xl border-2 border-accent hover:border-primary/20 w-full"
           value={searchText}
           onChange={(e) => handleSearchChange(e.target.value)}
         />
