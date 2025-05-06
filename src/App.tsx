@@ -23,6 +23,7 @@ import Guide from "./pages/Guide";
 // >>> LandingPage now has a default export <<<
 import LandingPage from "./pages/LandingPage";
 
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -127,7 +128,8 @@ export default function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/guide" element={<Guide />} />
-
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<Index />} /> 
             {/* Admin Route */}
             <Route
               path="/adminpanelumez"

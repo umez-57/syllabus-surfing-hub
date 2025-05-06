@@ -1,6 +1,7 @@
+// src/components/SyllabusCard.tsx
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { Download, Eye, X } from "lucide-react";
+import styled, { css, keyframes } from "styled-components";
+import { Eye, Share2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
@@ -8,39 +9,48 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 
-interface SyllabusCardProps {
+/* ------------------------------------------------------------------ */
+/* props                                                              */
+/* ------------------------------------------------------------------ */
+export interface SyllabusCardProps {
+  id: string;
   title: string;
   code: string;
   description: string;
   credits: number;
   filePath: string;
   fileName: string;
+  highlight?: boolean;
 }
 
+/* ------------------------------------------------------------------ */
+
 export function SyllabusCard({
+  id,
   title,
   code,
   description,
   credits,
   filePath,
   fileName,
+  highlight = false,
 }: SyllabusCardProps) {
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [loadingView, setLoadingView] = useState(false);
-  const [loadingDownload, setLoadingDownload] = useState(false);
   const navigate = useNavigate();
 
+  /* auth */
   useEffect(() => {
-    const fetchUser = async () => {
+    (async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
-    };
-    fetchUser();
+    })();
   }, []);
 
+  /* VIEW */
   const handleView = async () => {
     if (!filePath) {
       toast.error("File path is missing for viewing.");
@@ -48,88 +58,63 @@ export function SyllabusCard({
     }
     setLoadingView(true);
     try {
-      const fullPath = filePath.startsWith("files/") ? filePath : `files/${filePath}`;
-      const { data, error } = await supabase.storage.from("syllabi").download(fullPath);
+      const fullPath = filePath.startsWith("files/")
+        ? filePath
+        : `files/${filePath}`;
+      const { data, error } = await supabase.storage
+        .from("syllabi")
+        .download(fullPath);
 
-      if (error) {
-        console.error("Error downloading file for viewing:", error.message);
-        toast.error("Failed to load file for viewing.");
-        return;
-      }
+      if (error) throw error;
 
       const blobUrl = URL.createObjectURL(data);
       setPdfBlobUrl(blobUrl);
-    } catch (error) {
-      console.error("Error viewing file:", error);
+    } catch {
       toast.error("Failed to load file.");
     } finally {
       setLoadingView(false);
     }
   };
 
-  const handleDownload = async () => {
-    if (!user) {
-      toast.error("You need to be logged in to download files.");
-      navigate("/login");
-      return;
-    }
-    if (!filePath) {
-      toast.error("File path is missing for download.");
-      return;
-    }
-    setLoadingDownload(true);
+  /* SHARE */
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/home?shared=${id}`;
     try {
-      const fullPath = filePath.startsWith("files/") ? filePath : `files/${filePath}`;
-      const { data, error } = await supabase.storage.from("syllabi").download(fullPath);
-
-      if (error) {
-        console.error("Error downloading file:", error.message);
-        toast.error("Failed to download file.");
-        return;
-      }
-
-      const url = URL.createObjectURL(data);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName || "syllabus.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      toast.success("File downloaded successfully.");
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      toast.error("Failed to download file.");
-    } finally {
-      setLoadingDownload(false);
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      toast.error("Couldn’t copy link – please copy manually.");
     }
   };
 
+  /* render */
   return (
-    <StyledWrapper>
+    <StyledWrapper
+      highlight={highlight}
+      id={`card-${id}`} /* 🏷️ for scrollIntoView */
+    >
       <div className="brutalist-card">
+        {/* header */}
         <div className="brutalist-card__header">
           <div className="brutalist-card__icon">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12 2C6.48 2 2 6.48 
-                   2 12s4.48 10 10 10 
-                   10-4.48 10-10S17.52 2 12 2zm1 
-                   15h-2v-2h2v2zm0-4h-2V7h2v6z"
-              />
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
           </div>
           <div className="brutalist-card__alert">{title}</div>
         </div>
 
+        {/* body */}
         <div className="brutalist-card__message">
-          <strong>Course Code:</strong> {code} | <strong>Credits:</strong> {credits}
+          <strong>Course Code:</strong> {code} | <strong>Credits:</strong>{" "}
+          {credits}
           <br />
           {description}
         </div>
 
+        {/* actions */}
         <div className="brutalist-card__actions">
+          {/* view */}
           <a
             className="brutalist-card__button brutalist-card__button--mark"
             onClick={handleView}
@@ -143,24 +128,21 @@ export function SyllabusCard({
               </>
             )}
           </a>
+
+          {/* share */}
           <a
             className="brutalist-card__button brutalist-card__button--read"
-            onClick={handleDownload}
+            onClick={handleShare}
           >
-            {loadingDownload ? (
-              <ClipLoader size={16} color="#fff" />
-            ) : (
-              <>
-                <Download style={{ marginRight: 4 }} />
-                Download
-              </>
-            )}
+            <Share2 style={{ marginRight: 4 }} />
+            Share
           </a>
         </div>
       </div>
 
+      {/* pdf modal */}
       {pdfBlobUrl && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center">
           <div className="relative w-full max-w-4xl h-3/4 bg-white rounded-lg shadow-lg">
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer fileUrl={pdfBlobUrl} />
@@ -182,17 +164,30 @@ export function SyllabusCard({
   );
 }
 
-const StyledWrapper = styled.div`
+/* ------------------------------------------------------------------ */
+/* styles                                                             */
+/* ------------------------------------------------------------------ */
+const glow = keyframes`
+  0%   { box-shadow: 0 0 0px 4px #ffe600, 0 0 15px 8px #ffd000; }
+  100% { box-shadow: 5px 5px 0 #000; }
+`;
+
+const StyledWrapper = styled.div<{ highlight?: boolean }>`
   .brutalist-card {
     width: 320px;
-    min-height:  400px;
+    min-height: 400px;
     border: 4px solid #000;
     background-color: #fff;
     padding: 1.5rem;
     box-shadow: 5px 5px 0 #fff;
     font-family: "Arial", sans-serif;
-  }
 
+    ${({ highlight }) =>
+      highlight &&
+      css`
+        animation: ${glow} 10s ease-out forwards;
+      `}
+  }
   .brutalist-card__header {
     display: flex;
     align-items: center;
@@ -307,3 +302,4 @@ const StyledWrapper = styled.div`
     box-shadow: none;
   }
 `;
+
