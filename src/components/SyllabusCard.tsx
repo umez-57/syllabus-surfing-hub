@@ -9,9 +9,7 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 
-/* ------------------------------------------------------------------ */
-/* props                                                              */
-/* ------------------------------------------------------------------ */
+/* ─── props ───────────────────────────────────────────────── */
 export interface SyllabusCardProps {
   id: string;
   title: string;
@@ -23,8 +21,7 @@ export interface SyllabusCardProps {
   highlight?: boolean;
 }
 
-/* ------------------------------------------------------------------ */
-
+/* ─── component ───────────────────────────────────────────── */
 export function SyllabusCard({
   id,
   title,
@@ -35,27 +32,32 @@ export function SyllabusCard({
   fileName,
   highlight = false,
 }: SyllabusCardProps) {
-  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loadingView, setLoadingView] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
 
-  /* auth */
+  /* fetch current user once */
   useEffect(() => {
-    (async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-    })();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, []);
 
-  /* VIEW */
+  /* ----- VIEW (login required) -------------------------------- */
   const handleView = async () => {
     if (!filePath) {
       toast.error("File path is missing for viewing.");
       return;
     }
+
+    /* ⛔ not logged in → redirect */
+    const currentUser =
+      user ?? (await supabase.auth.getUser()).data.user ?? null;
+    if (!currentUser) {
+      toast.error("Please sign in to view syllabus.");
+      navigate("/login");
+      return;
+    }
+
     setLoadingView(true);
     try {
       const fullPath = filePath.startsWith("files/")
@@ -64,11 +66,9 @@ export function SyllabusCard({
       const { data, error } = await supabase.storage
         .from("syllabi")
         .download(fullPath);
-
       if (error) throw error;
 
-      const blobUrl = URL.createObjectURL(data);
-      setPdfBlobUrl(blobUrl);
+      setPdfUrl(URL.createObjectURL(data));
     } catch {
       toast.error("Failed to load file.");
     } finally {
@@ -76,28 +76,25 @@ export function SyllabusCard({
     }
   };
 
-  /* SHARE */
+  /* ----- SHARE ------------------------------------------------ */
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/home?shared=${id}`;
+    const shareUrl = `${location.origin}/home?shared=${id}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       toast.success("Link copied to clipboard!");
-    } catch (err) {
+    } catch {
       toast.error("Couldn’t copy link – please copy manually.");
     }
   };
 
-  /* render */
+  /* ----- JSX -------------------------------------------------- */
   return (
-    <StyledWrapper
-      highlight={highlight}
-      id={`card-${id}`} /* 🏷️ for scrollIntoView */
-    >
+    <Wrapper $highlight={highlight} id={`card-${id}`}>
       <div className="brutalist-card">
         {/* header */}
         <div className="brutalist-card__header">
           <div className="brutalist-card__icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
           </div>
@@ -114,7 +111,6 @@ export function SyllabusCard({
 
         {/* actions */}
         <div className="brutalist-card__actions">
-          {/* view */}
           <a
             className="brutalist-card__button brutalist-card__button--mark"
             onClick={handleView}
@@ -128,8 +124,6 @@ export function SyllabusCard({
               </>
             )}
           </a>
-
-          {/* share */}
           <a
             className="brutalist-card__button brutalist-card__button--read"
             onClick={handleShare}
@@ -141,16 +135,16 @@ export function SyllabusCard({
       </div>
 
       {/* pdf modal */}
-      {pdfBlobUrl && (
+      {pdfUrl && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center">
           <div className="relative w-full max-w-4xl h-3/4 bg-white rounded-lg shadow-lg">
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-              <Viewer fileUrl={pdfBlobUrl} />
+              <Viewer fileUrl={pdfUrl} />
             </Worker>
             <button
               onClick={() => {
-                URL.revokeObjectURL(pdfBlobUrl);
-                setPdfBlobUrl(null);
+                URL.revokeObjectURL(pdfUrl);
+                setPdfUrl(null);
               }}
               className="absolute top-2 right-2 bg-red-500 text-white hover:bg-red-600 px-3 py-1 flex items-center"
             >
@@ -160,146 +154,118 @@ export function SyllabusCard({
           </div>
         </div>
       )}
-    </StyledWrapper>
+    </Wrapper>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* styles                                                             */
-/* ------------------------------------------------------------------ */
+/* ─── styles (unchanged) ──────────────────────────────────── */
+
 const glow = keyframes`
-  0%   { box-shadow: 0 0 0px 4px #ffe600, 0 0 15px 8px #ffd000; }
-  100% { box-shadow: 5px 5px 0 #000; }
+  0%   { box-shadow:0 0 0 4px #ffe600,0 0 15px 8px #ffd000; }
+  100% { box-shadow:5px 5px 0 #000; }
 `;
 
-const StyledWrapper = styled.div<{ highlight?: boolean }>`
+const Wrapper = styled.div<{ $highlight?: boolean }>`
   .brutalist-card {
     width: 320px;
     min-height: 400px;
     border: 4px solid #000;
-    background-color: #fff;
-    padding: 1.5rem;
-    box-shadow: 5px 5px 0 #fff;
+    background:#fff;
+    padding:1.5rem;
+    box-shadow:5px 5px 0 #fff;
     font-family: "Arial", sans-serif;
 
-    ${({ highlight }) =>
-      highlight &&
+    ${({ $highlight }) =>
+      $highlight &&
       css`
-        animation: ${glow} 10s ease-out forwards;
+        animation:${glow} 10s ease-out forwards;
       `}
   }
+
   .brutalist-card__header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #000;
-    padding-bottom: 1rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    margin-bottom:1rem;
+    border-bottom:2px solid #000;
+    padding-bottom:1rem;
   }
 
   .brutalist-card__icon {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #000;
-    padding: 0.5rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#000;
+    padding:0.5rem;
   }
 
-  .brutalist-card__icon svg {
-    height: 1.5rem;
-    width: 1.5rem;
-    fill: #fff;
-  }
+  .brutalist-card__icon svg { width:1.5rem;height:1.5rem;fill:#fff; }
 
   .brutalist-card__alert {
-    font-weight: 900;
-    color: #000;
-    font-size: 1.rem;
-    text-transform: uppercase;
+    font-weight:900;
+    color:#000;
+    font-size:1rem;
+    text-transform:uppercase;
   }
 
   .brutalist-card__message {
-    margin-top: 1rem;
-    color: #000;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    border-bottom: 2px solid #fff;
-    padding-bottom: 1rem;
-    font-weight: 600;
+    margin-top:1rem;
+    color:#000;
+    font-size:0.9rem;
+    line-height:1.4;
+    border-bottom:2px solid #fff;
+    padding-bottom:1rem;
+    font-weight:600;
   }
 
-  .brutalist-card__actions {
-    margin-top: 1rem;
-  }
+  .brutalist-card__actions { margin-top:1rem; }
 
   .brutalist-card__button {
-    display: block;
-    width: 100%;
-    padding: 0.75rem;
-    text-align: center;
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    border: 3px solid #000;
-    background-color: #fff;
-    color: #000;
-    position: relative;
-    transition: all 0.2s ease;
-    box-shadow: 5px 5px 0 #000;
-    overflow: hidden;
-    text-decoration: none;
-    margin-bottom: 1rem;
-    cursor: pointer;
+    display:block;
+    width:100%;
+    padding:0.75rem;
+    text-align:center;
+    font-size:1rem;
+    font-weight:700;
+    text-transform:uppercase;
+    border:3px solid #000;
+    background:#fff;
+    color:#000;
+    position:relative;
+    transition:.2s;
+    box-shadow:5px 5px 0 #000;
+    margin-bottom:1rem;
+    cursor:pointer;
+    overflow:hidden;
   }
 
-  .brutalist-card__button--read {
-    background-color: #000;
-    color: #fff;
-  }
+  .brutalist-card__button--read { background:#000;color:#fff; }
 
   .brutalist-card__button::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      120deg,
-      transparent,
-      rgba(255, 255, 255, 0.3),
-      transparent
-    );
-    transition: all 0.6s;
+    content:"";
+    position:absolute;
+    inset:0;
+    left:-100%;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,.3),transparent);
+    transition:.6s;
   }
 
-  .brutalist-card__button:hover::before {
-    left: 100%;
-  }
-
-  .brutalist-card__button:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 7px 7px 0 #000;
-  }
+  .brutalist-card__button:hover::before { left:100%; }
+  .brutalist-card__button:hover         { transform:translate(-2px,-2px); box-shadow:7px 7px 0 #000; }
 
   .brutalist-card__button--mark:hover {
-    background-color: #296fbb;
-    border-color: #296fbb;
-    color: #fff;
-    box-shadow: 7px 7px 0 #004280;
+    background:#296fbb;
+    border-color:#296fbb;
+    color:#fff;
+    box-shadow:7px 7px 0 #004280;
   }
 
   .brutalist-card__button--read:hover {
-    background-color: #ff0000;
-    border-color: #ff0000;
-    color: #fff;
-    box-shadow: 7px 7px 0 #800000;
+    background:#ff0000;
+    border-color:#ff0000;
+    color:#fff;
+    box-shadow:7px 7px 0 #800000;
   }
 
-  .brutalist-card__button:active {
-    transform: translate(5px, 5px);
-    box-shadow: none;
-  }
+  .brutalist-card__button:active { transform:translate(5px,5px); box-shadow:none; }
 `;
-

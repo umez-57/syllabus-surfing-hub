@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { Eye, X } from "lucide-react";
+// src/components/NotesCard.tsx
+import React, { useState } from "react";
+import styled, { css, keyframes } from "styled-components";
+import { Eye, Share2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -9,7 +10,8 @@ import { fetchFileFromDrive } from "@/integrations/google";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 
-interface NotesCardProps {
+/* ─── props ──────────────────────────────────────────────── */
+export interface NotesCardProps {
   id: string;
   title: string;
   description: string;
@@ -18,79 +20,72 @@ interface NotesCardProps {
   file_path?: string;
   file_name?: string;
   notes_by: string;
+  highlight?: boolean;
 }
 
-/**
- * A "brutalist" styled card for Notes.
- * Single button that triggers a Google Drive fetch (handleDownload).
- */
+/* ─── component ──────────────────────────────────────────── */
 export function NotesCard({
   id,
   title,
   description,
   department_id,
   course_code,
-  file_path,
-  file_name,
   notes_by,
+  highlight = false,
 }: NotesCardProps) {
-  const [loadingDownload, setLoadingDownload] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [loadingView, setLoadingView] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // (Optional) PDF preview if you want the same modal logic as SyllabusCard
-  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  /* ----- VIEW (login required) -------------------------------- */
+  const handleView = async () => {
+    /* 1️⃣ auth check BEFORE spinner */
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Please sign in to view notes.");
+      navigate("/login");
+      return;
+    }
 
-  useEffect(() => {
-    // Check user session
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-  }, []);
-
-  const handleDownload = async () => {
-    setLoadingDownload(true);
+    /* 2️⃣ fetch Google-Drive file */
+    setLoadingView(true);
     try {
-      const {
-        data: { user: currentUser },
-      } = await supabase.auth.getUser();
-
-      if (!currentUser) {
-        toast.error("You must be logged in to view notes.");
-        navigate("/login");
-        return;
-      }
-
-      // Attempt to fetch file from Google Drive
-      const fileLink = await fetchFileFromDrive(course_code, notes_by);
-      if (fileLink) {
-        window.open(fileLink, "_blank");
-        toast.success("Opening Google Drive file...");
+      const link = await fetchFileFromDrive(course_code, notes_by);
+      if (link) {
+        window.open(link, "_blank");
+        toast.success("Opening Google Drive file…");
       } else {
         toast.error("No file link found for this note.");
       }
-    } catch (error: any) {
-      console.error("Error during download:", error);
-      toast.error(error.message || "Failed to fetch file.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to fetch file.");
     } finally {
-      setLoadingDownload(false);
+      setLoadingView(false);
     }
   };
 
+  /* ----- SHARE (dept + shared) -------------------------------- */
+  const handleShare = async () => {
+    const shareUrl = `${location.origin}/notes?dept=${department_id}&shared=${id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard!");
+    } catch {
+      toast.error("Couldn’t copy link – please copy manually.");
+    }
+  };
+
+  /* ----- JSX --------------------------------------------------- */
   return (
-    <StyledWrapper>
+    <Wrapper $highlight={highlight} id={`card-${id}`}>
       <div className="brutalist-card">
-        {/* Top Header */}
+        {/* header */}
         <div className="brutalist-card__header">
-          {/* Icon area (like exclamation sign) */}
           <div className="brutalist-card__icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12 2C6.48 2 2 6.48 
-                   2 12s4.48 10 10 10 
-                   10-4.48 10-10S17.52 2 12 2zm1 
-                   15h-2v-2h2v2zm0-4h-2V7h2v6z"
-              />
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
           </div>
           <div className="brutalist-card__alert">
@@ -98,71 +93,86 @@ export function NotesCard({
           </div>
         </div>
 
-        {/* Middle content: course code, department, desc, etc. */}
+        {/* body */}
         <div className="brutalist-card__message">
-          <strong>Course Code:</strong> {course_code || "N/A"} 
+          <strong>Course Code:</strong> {course_code || "N/A"}
           <br />
           <strong>Notes By:</strong> {notes_by || "Unknown"}
           <br />
           {description}
         </div>
 
-        {/* Action area: single "View" button */}
+        {/* actions */}
         <div className="brutalist-card__actions">
           <a
             className="brutalist-card__button brutalist-card__button--mark"
-            onClick={handleDownload}
+            onClick={handleView}
           >
-            {loadingDownload ? (
+            {loadingView ? (
               <ClipLoader size={16} color="#000" />
             ) : (
               <>
-                <Eye style={{ marginRight: 4 }} />
-                View
+                <Eye className="mr-2" />View
               </>
             )}
+          </a>
+          <a
+            className="brutalist-card__button brutalist-card__button--read"
+            onClick={handleShare}
+          >
+            <Share2 className="mr-2" />Share
           </a>
         </div>
       </div>
 
-      {/* (Optional) If you want a PDF preview like SyllabusCard, 
-          you'd do something similar here. For now, omitted. 
-          If you want the same modal approach, uncomment code below. */}
-
-      {pdfBlobUrl && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
+      {/* optional PDF modal (still available for future use) */}
+      {pdfUrl && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center">
           <div className="relative w-full max-w-4xl h-3/4 bg-white rounded-lg shadow-lg">
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-              <Viewer fileUrl={pdfBlobUrl} />
+              <Viewer fileUrl={pdfUrl} />
             </Worker>
             <button
               onClick={() => {
-                URL.revokeObjectURL(pdfBlobUrl);
-                setPdfBlobUrl(null);
+                URL.revokeObjectURL(pdfUrl);
+                setPdfUrl(null);
               }}
               className="absolute top-2 right-2 bg-red-500 text-white hover:bg-red-600 px-3 py-1 flex items-center"
             >
-              <X className="mr-2 h-4 w-4" />
-              Close
+              <X className="mr-2 h-4 w-4" />Close
             </button>
           </div>
         </div>
       )}
-    </StyledWrapper>
+    </Wrapper>
   );
 }
 
-const StyledWrapper = styled.div`
+/* ─── styles (same brutalist + glow) ───────────────────────── */
+
+const glow = keyframes`
+  0%   { box-shadow:0 0 0 4px #ffe600,0 0 15px 8px #ffd000; }
+  100% { box-shadow:5px 5px 0 #000; }
+`;
+
+const Wrapper = styled.div<{ $highlight?: boolean }>`
   .brutalist-card {
     width: 320px;
     min-height: 400px;
     border: 4px solid #000;
-    background-color: #fff;
+    background: #fff;
     padding: 1.5rem;
     box-shadow: 5px 5px 0 #fff;
     font-family: "Arial", sans-serif;
+
+    ${({ $highlight }) =>
+      $highlight &&
+      css`
+        animation: ${glow} 10s ease-out forwards;
+      `}
   }
 
+  /* header */
   .brutalist-card__header {
     display: flex;
     align-items: center;
@@ -171,29 +181,26 @@ const StyledWrapper = styled.div`
     border-bottom: 2px solid #000;
     padding-bottom: 1rem;
   }
-
   .brutalist-card__icon {
-    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #000;
+    background: #000;
     padding: 0.5rem;
   }
-
   .brutalist-card__icon svg {
-    height: 1.5rem;
     width: 1.5rem;
+    height: 1.5rem;
     fill: #fff;
   }
-
   .brutalist-card__alert {
     font-weight: 900;
     color: #000;
-    font-size: 1.2rem; /* can tweak to match your style */
+    font-size: 1rem;
     text-transform: uppercase;
   }
 
+  /* body */
   .brutalist-card__message {
     margin-top: 1rem;
     color: #000;
@@ -204,10 +211,12 @@ const StyledWrapper = styled.div`
     font-weight: 600;
   }
 
+  /* actions */
   .brutalist-card__actions {
     margin-top: 1rem;
   }
 
+  /* button */
   .brutalist-card__button {
     display: block;
     width: 100%;
@@ -217,61 +226,51 @@ const StyledWrapper = styled.div`
     font-weight: 700;
     text-transform: uppercase;
     border: 3px solid #000;
-    background-color: #fff;
+    background: #fff;
     color: #000;
     position: relative;
-    transition: all 0.2s ease;
+    transition: .2s;
     box-shadow: 5px 5px 0 #000;
-    overflow: hidden;
-    text-decoration: none;
     margin-bottom: 1rem;
     cursor: pointer;
+    overflow: hidden;
   }
-
+  .brutalist-card__button--read {
+    background: #000;
+    color: #fff;
+  }
   .brutalist-card__button::before {
     content: "";
     position: absolute;
-    top: 0;
+    inset: 0;
     left: -100%;
-    width: 100%;
-    height: 100%;
     background: linear-gradient(
       120deg,
       transparent,
       rgba(255, 255, 255, 0.3),
       transparent
     );
-    transition: all 0.6s;
+    transition: .6s;
   }
-
   .brutalist-card__button:hover::before {
     left: 100%;
   }
-
   .brutalist-card__button:hover {
     transform: translate(-2px, -2px);
     box-shadow: 7px 7px 0 #000;
   }
-
   .brutalist-card__button--mark:hover {
-    background-color: #296fbb;
+    background: #296fbb;
     border-color: #296fbb;
     color: #fff;
     box-shadow: 7px 7px 0 #004280;
   }
-
-  .brutalist-card__button--read {
-    background-color: #000;
-    color: #fff;
-  }
-
   .brutalist-card__button--read:hover {
-    background-color: #ff0000;
+    background: #ff0000;
     border-color: #ff0000;
     color: #fff;
     box-shadow: 7px 7px 0 #800000;
   }
-
   .brutalist-card__button:active {
     transform: translate(5px, 5px);
     box-shadow: none;

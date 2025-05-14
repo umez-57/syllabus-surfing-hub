@@ -1,85 +1,79 @@
-// src/components/PyqCard.tsx
-
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { Eye, X } from "lucide-react";
+import React, { useState } from "react";
+import styled, { css, keyframes } from "styled-components";
+import { Eye, Share2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 import { fetchFileFromDrivePyq } from "@/integrations/google";
 
-interface PyqCardProps {
+/* ─── props ──────────────────────────────────────────────── */
+export interface PyqCardProps {
   id: string;
   title: string;
   department_id: string;
   course_code: string;
+  highlight?: boolean;
 }
 
-/**
- * A "brutalist" styled card for PYQ, mirroring NotesCard layout.
- * Single button that triggers a Google Drive fetch (handleView).
- */
+/* ─── component ──────────────────────────────────────────── */
 export function PyqCard({
   id,
   title,
   department_id,
   course_code,
+  highlight = false,
 }: PyqCardProps) {
-  const [loadingDownload, setLoadingDownload] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check user session
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-    });
-  }, []);
-
+  /* ----- VIEW (login required) -------------------------------- */
   const handleView = async () => {
-    setLoadingDownload(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error("Please sign in to view question papers.");
+      navigate("/login");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const {
-        data: { user: currentUser },
-      } = await supabase.auth.getUser();
-
-      if (!currentUser) {
-        toast.error("You must be logged in to view question papers.");
-        navigate("/login");
-        return;
-      }
-
-      // Attempt to fetch pyq.zip from Google Drive
-      const fileLink = await fetchFileFromDrivePyq(course_code);
-      if (fileLink) {
-        window.open(fileLink, "_blank");
-        toast.success("Opening Google Drive file...");
+      const link = await fetchFileFromDrivePyq(course_code);
+      if (link) {
+        window.open(link, "_blank");
+        toast.success("Opening Google Drive file…");
       } else {
         toast.error("No pyq.zip found for this course.");
       }
-    } catch (error: any) {
-      console.error("Error during PYQ fetch:", error);
-      toast.error(error.message || "Failed to fetch PYQ file.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to fetch PYQ file.");
     } finally {
-      setLoadingDownload(false);
+      setLoading(false);
     }
   };
 
+  /* ----- SHARE ------------------------------------------------ */
+  const handleShare = async () => {
+    const url = `${location.origin}/pyq?dept=${department_id}&shared=${id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    } catch {
+      toast.error("Couldn’t copy link – please copy manually.");
+    }
+  };
+
+  /* ----- JSX -------------------------------------------------- */
   return (
-    <StyledWrapper>
+    <Wrapper $highlight={highlight} id={`card-${id}`}>
       <div className="brutalist-card">
-        {/* Top Header */}
+        {/* header */}
         <div className="brutalist-card__header">
-          {/* Icon area (exclamation sign, same as notes) */}
           <div className="brutalist-card__icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12 2C6.48 2 2 6.48 
-                   2 12s4.48 10 10 10 
-                   10-4.48 10-10S17.52 2 12 2zm1 
-                   15h-2v-2h2v2zm0-4h-2V7h2v6z"
-              />
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
           </div>
           <div className="brutalist-card__alert">
@@ -87,142 +81,135 @@ export function PyqCard({
           </div>
         </div>
 
-        {/* Middle content: course code */}
+        {/* body */}
         <div className="brutalist-card__message">
           <strong>Course Code:</strong> {course_code || "N/A"}
         </div>
 
-        {/* Action area: single "View" link with spinner + Eye icon */}
+        {/* actions */}
         <div className="brutalist-card__actions">
           <a
             className="brutalist-card__button brutalist-card__button--mark"
             onClick={handleView}
           >
-            {loadingDownload ? (
+            {loading ? (
               <ClipLoader size={16} color="#000" />
             ) : (
               <>
-                <Eye style={{ marginRight: 4 }} />
-                View
+                <Eye className="mr-2" />View
               </>
             )}
           </a>
+          <a
+            className="brutalist-card__button brutalist-card__button--read"
+            onClick={handleShare}
+          >
+            <Share2 className="mr-2" />Share
+          </a>
         </div>
       </div>
-    </StyledWrapper>
+    </Wrapper>
   );
 }
 
-const StyledWrapper = styled.div`
+/* ─── styles (brutalist + glow) ──────────────────────────── */
+const glow = keyframes`
+  0%   { box-shadow:0 0 0 4px #ffe600,0 0 15px 8px #ffd000; }
+  100% { box-shadow:5px 5px 0 #000; }
+`;
+
+const Wrapper = styled.div<{ $highlight?: boolean }>`
   .brutalist-card {
-    width: 320px;
-    min-height: 200px; /* match the notes card’s height */
-    border: 4px solid #000;
-    background-color: #fff;
-    padding: 1.5rem;
-    box-shadow: 5px 5px 0 #fff;
-    font-family: "Arial", sans-serif;
+    width:320px;
+    min-height:200px;
+    border:4px solid #000;
+    background:#fff;
+    padding:1.5rem;
+    box-shadow:5px 5px 0 #fff;
+    font-family:"Arial",sans-serif;
+
+    ${({ $highlight }) =>
+      $highlight &&
+      css`
+        animation:${glow} 10s ease-out forwards;
+      `}
   }
 
   .brutalist-card__header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #000;
-    padding-bottom: 1rem;
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    margin-bottom:1rem;
+    border-bottom:2px solid #000;
+    padding-bottom:1rem;
   }
-
   .brutalist-card__icon {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #000;
-    padding: 0.5rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#000;
+    padding:0.5rem;
   }
-
-  .brutalist-card__icon svg {
-    height: 1.5rem;
-    width: 1.5rem;
-    fill: #fff;
-  }
-
+  .brutalist-card__icon svg { width:1.5rem;height:1.5rem;fill:#fff; }
   .brutalist-card__alert {
-    font-weight: 900;
-    color: #000;
-    font-size: 0.8rem; /* match notes card title size */
-    text-transform: uppercase;
+    font-weight:900;
+    color:#000;
+    font-size:0.8rem;
+    text-transform:uppercase;
   }
 
   .brutalist-card__message {
-    margin-top: 1rem;
-    color: #000;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    border-bottom: 2px solid #000;
-    padding-bottom: 1rem;
-    font-weight: 600;
+    margin-top:1rem;
+    color:#000;
+    font-size:0.9rem;
+    line-height:1.4;
+    border-bottom:2px solid #000;
+    padding-bottom:1rem;
+    font-weight:600;
   }
 
-  .brutalist-card__actions {
-    margin-top: 1rem;
-  }
+  .brutalist-card__actions { margin-top:1rem; }
 
   .brutalist-card__button {
-    display: block;
-    width: 100%;
-    padding: 0.75rem;
-    text-align: center;
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    border: 3px solid #000;
-    background-color: #fff;
-    color: #000;
-    position: relative;
-    transition: all 0.2s ease;
-    box-shadow: 5px 5px 0 #000;
-    overflow: hidden;
-    text-decoration: none;
-    margin-bottom: 1rem;
-    cursor: pointer;
+    display:block;
+    width:100%;
+    padding:0.75rem;
+    text-align:center;
+    font-size:1rem;
+    font-weight:700;
+    text-transform:uppercase;
+    border:3px solid #000;
+    background:#fff;
+    color:#000;
+    position:relative;
+    transition:.2s;
+    box-shadow:5px 5px 0 #000;
+    margin-bottom:1rem;
+    cursor:pointer;
+    overflow:hidden;
   }
-
+  .brutalist-card__button--read { background:#000;color:#fff; }
   .brutalist-card__button::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      120deg,
-      transparent,
-      rgba(255, 255, 255, 0.3),
-      transparent
-    );
-    transition: all 0.6s;
+    content:"";
+    position:absolute;
+    inset:0;
+    left:-100%;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,.3),transparent);
+    transition:.6s;
   }
-
-  .brutalist-card__button:hover::before {
-    left: 100%;
-  }
-
-  .brutalist-card__button:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 7px 7px 0 #000;
-  }
-
+  .brutalist-card__button:hover::before { left:100%; }
+  .brutalist-card__button:hover { transform:translate(-2px,-2px); box-shadow:7px 7px 0 #000; }
   .brutalist-card__button--mark:hover {
-    background-color: #296fbb;
-    border-color: #296fbb;
-    color: #fff;
-    box-shadow: 7px 7px 0 #004280;
+    background:#296fbb;
+    border-color:#296fbb;
+    color:#fff;
+    box-shadow:7px 7px 0 #004280;
   }
-
-  .brutalist-card__button:active {
-    transform: translate(5px, 5px);
-    box-shadow: none;
+  .brutalist-card__button--read:hover {
+    background:#ff0000;
+    border-color:#ff0000;
+    color:#fff;
+    box-shadow:7px 7px 0 #800000;
   }
+  .brutalist-card__button:active { transform:translate(5px,5px); box-shadow:none; }
 `;

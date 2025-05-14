@@ -1,14 +1,16 @@
-// src/pages/PyqHome.tsx
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PyqSearchBar } from "@/components/PyqSearchBar";
 import { Navbar } from "@/components/Navbar";
 import Folder from "@/components/Folder";
-import { Hero } from "@/components/hero"; // If you have a Hero for the background
+import { Hero } from "@/components/hero";
 
 export function PyqHome() {
   const [selectedDept, setSelectedDept] = useState<string>("");
+  const { search } = useLocation();
+  const navigate = useNavigate();
 
+  /* departments */
   const departments = [
     { id: "e6cc847f-4113-4a9b-8193-1da79c0327eb", name: "SCOPE", fn: "SCOPE (CSE)" },
     { id: "c768f9c9-ac7d-469c-8e49-4a210f0d8a21", name: "SENSE", fn: "SENSE (ECE)" },
@@ -17,9 +19,23 @@ export function PyqHome() {
     { id: "23b4f969-c687-4694-aa47-1455481021da", name: "VISH", fn: "VISH (Humanities)" },
   ];
 
+  /* auto-select dept from URL */
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const dept = params.get("dept");
+    if (dept && departments.some((d) => d.id === dept)) {
+      setSelectedDept(dept);
+    }
+  }, [search]);
+
+  /* helper to update URL when user picks a folder */
+  const chooseDept = (deptId: string) => {
+    navigate(`/pyq?dept=${deptId}`, { replace: true });
+    setSelectedDept(deptId);
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* If you want the Hero background: */}
       <Hero className="absolute inset-0 -z-10" gradient blur />
       <Navbar />
 
@@ -28,8 +44,6 @@ export function PyqHome() {
           <h1 className="text-3xl font-bold mb-6 text-white">
             Select Your Department For PYQs
           </h1>
-          <br />
-          <br />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 place-items-center">
             {departments.map((dept) => (
@@ -39,7 +53,7 @@ export function PyqHome() {
                   item={
                     <div
                       className="p-2 text-center cursor-pointer text-white"
-                      onClick={() => setSelectedDept(dept.id)}
+                      onClick={() => chooseDept(dept.id)}
                     >
                       <p className="font-semibold">{dept.name}</p>
                     </div>
@@ -62,6 +76,8 @@ export function PyqHome() {
           >
             &larr; Change Department
           </p>
+
+          {/* search bar */}
           <PyqSearchBar department_id={selectedDept} />
         </div>
       )}
