@@ -65,7 +65,7 @@ export function PyqSearchBar({ department_id }: PyqSearchBarProps) {
       <div className="relative max-w-2xl mx-auto">
         <Input
           type="search"
-          placeholder="Search for previous year questions..."
+          placeholder="Search with Course Code or Subject Name"
           className="pl-12 pr-4 py-6 text-lg rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-xl text-white placeholder:text-gray-400 focus:border-white/20 transition-all duration-300"
           value={text}
           onChange={(e) => {
