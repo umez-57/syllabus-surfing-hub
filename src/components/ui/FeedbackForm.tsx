@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import emailjs from '@emailjs/browser';
 import {
   Dialog,
   DialogContent,
@@ -55,12 +56,29 @@ export function FeedbackForm({ isOpen, onClose }: FeedbackFormProps) {
     console.log("Feedback data:", data);
     
     try {
-      // For now, we'll just simulate sending an email
-      // In production, you would integrate with an email service here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      // Prepare template parameters for Email.js
+      const templateParams = {
+        name: data.name,
+        email: data.email,
+        subject: data.subject,
+        message: data.message,
+        timestamp: new Date().toLocaleString(),
+      };
+
+      console.log("Sending email with template params:", templateParams);
+
+      // Send email using Email.js
+      const result = await emailjs.send(
+        'service_5iuknwj', // Your service ID
+        'template_98i02oa', // Your template ID
+        templateParams,
+        'm1CfeebVF-dcyUfvZ' // Your public key
+      );
+
+      console.log("Email sent successfully:", result);
       
       toast({
-        title: "Feedback submitted",
+        title: "Feedback submitted successfully!",
         description: "Thank you for your feedback! We'll get back to you soon.",
       });
       
