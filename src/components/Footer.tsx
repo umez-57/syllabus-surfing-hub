@@ -1,4 +1,3 @@
-
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
@@ -22,15 +21,13 @@ export const Footer = () => {
         { label: "Home", action: () => navigate("/home") },
         { label: "Notes", action: () => navigate("/notes") },
         { label: "PYQ", action: () => navigate("/pyq") },
-        { label: "Timetable", action: () => window.open("https://timetable.vitaphub.in/", "_blank") }
+        { label: "Timetable Scheduler", action: () => window.open("https://timetable.vitaphub.in/", "_blank") }
       ]
     },
     {
       title: "Resources",
       links: [
-        { label: "Study Guide", action: () => navigate("/guide") },
-        { label: "Help Center", action: () => {} },
-        { label: "API Docs", action: () => {} },
+        { label: "Timetable Schedule Guide", action: () => navigate("/guide") },
         { label: "Feedback", action: () => {} }
       ]
     },
@@ -38,9 +35,7 @@ export const Footer = () => {
       title: "Legal",
       links: [
         { label: "Privacy Policy", action: () => navigate("/privacy-policy") },
-        { label: "Terms of Service", action: () => navigate("/terms-of-service") },
-        { label: "Cookie Policy", action: () => {} },
-        { label: "DMCA", action: () => {} }
+        { label: "Terms of Service", action: () => navigate("/terms-of-service") }
       ]
     }
   ]
