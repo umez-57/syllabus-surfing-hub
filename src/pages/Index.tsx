@@ -7,29 +7,16 @@ import { SearchBar } from "@/components/SearchBar"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { motion } from "framer-motion"
 import { BookOpen, Users, Download, Star, ArrowRight, Sparkles } from "lucide-react"
+import { BeamsBackground } from "@/components/ui/beams-background"
 
 export default function Index() {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
-      {/* Animated Background with Floating Orbs */}
-      <div className="absolute inset-0">
-        {/* Gradient Background - Darker theme */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-800/10 via-transparent to-transparent" />
-        
-        {/* Floating Orbs - More subtle */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-3/4 right-1/4 w-48 h-48 bg-cyan-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-pink-600/10 rounded-full blur-2xl animate-pulse delay-2000" />
-        
-        {/* Animated Grid - More subtle */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:100px_100px] opacity-20 animate-pulse" />
-      </div>
-
+    <BeamsBackground intensity="medium" className="min-h-screen overflow-hidden">
       <Navbar />
 
-      <main className="relative z-10 pt-32">
+      <main className="relative z-10 pt-20">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-4">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -192,6 +179,6 @@ export default function Index() {
 
       <SpeedInsights />
       <Footer />
-    </div>
+    </BeamsBackground>
   )
 }
