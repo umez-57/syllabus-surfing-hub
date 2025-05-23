@@ -1,7 +1,6 @@
-
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Tooltip,
   TooltipContent,
@@ -18,6 +17,22 @@ export const Footer = () => {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
+  const [showFeedbackButton, setShowFeedbackButton] = useState(false)
+
+  // Add scroll event listener to show button only when near the bottom
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + window.innerHeight
+      const bottomThreshold = document.documentElement.scrollHeight - 500
+      setShowFeedbackButton(scrollPosition > bottomThreshold)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    // Initial check
+    handleScroll()
+    
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const footerLinks = [
     {
@@ -135,25 +150,45 @@ export const Footer = () => {
           ))}
         </div>
 
-        {/* Feedback Button (Fixed position) */}
-        <div className="fixed right-6 bottom-6 z-50">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  onClick={() => setIsFeedbackOpen(true)} 
-                  className="rounded-full shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 p-4 h-auto"
-                  size="icon"
-                >
-                  <MessageSquare className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>Send us your feedback</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        {/* Feedback Button (Fixed position) - Only visible when scrolled near bottom */}
+        <AnimatePresence>
+          {showFeedbackButton && (
+            <motion.div 
+              className="fixed right-6 bottom-6 z-50"
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={() => setIsFeedbackOpen(true)} 
+                      className="group flex items-center gap-2 rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-5 py-6 h-auto"
+                      size="lg"
+                    >
+                      <MessageSquare className="h-5 w-5 animate-pulse" />
+                      <span className="font-medium">Give Feedback</span>
+                      <motion.span 
+                        className="absolute inset-0 rounded-full bg-white/20"
+                        animate={{ scale: [1, 1.05, 1], opacity: [0, 0.5, 0] }}
+                        transition={{ 
+                          repeat: Infinity, 
+                          duration: 2,
+                          repeatType: "loop"
+                        }}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="bg-gray-900 text-white border-gray-800">
+                    <p>Share your thoughts with us!</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Bottom Section */}
         <motion.div
