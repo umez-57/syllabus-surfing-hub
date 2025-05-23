@@ -96,7 +96,7 @@ export const Navbar = () => {
           <div className="md:hidden">
             <Button
               variant="ghost"
-              className="text-white hover:bg-white/10 backdrop-blur-lg p-2 rounded-lg border border-white/10"
+              className="text-white hover:bg-purple-500/20 hover:text-purple-200 backdrop-blur-lg p-2 rounded-lg border border-white/10 transition-all duration-300"
               onClick={toggleMobileMenu}
               aria-label="Toggle Menu"
             >
@@ -112,7 +112,7 @@ export const Navbar = () => {
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
+                    className="text-white hover:bg-purple-500/20 hover:text-purple-200 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105 hover:border-purple-400/30"
                     onClick={upcomingToast}
                   >
                     <BookOpen className="mr-2" />
@@ -137,7 +137,7 @@ export const Navbar = () => {
                   >
                     <Button 
                       variant="ghost" 
-                      className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
+                      className="text-white hover:bg-purple-500/20 hover:text-purple-200 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105 hover:border-purple-400/30"
                     >
                       <Calendar className="mr-2" />
                       <span className="flex flex-col items-start leading-4">
@@ -157,7 +157,7 @@ export const Navbar = () => {
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
+                    className="text-white hover:bg-purple-500/20 hover:text-purple-200 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105 hover:border-purple-400/30"
                     onClick={() => navigate("/notes")}
                   >
                     <StickyNote className="mr-2" />
@@ -173,7 +173,7 @@ export const Navbar = () => {
             {/* PYQ */}
             <Button
               variant="ghost"
-              className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
+              className="text-white hover:bg-purple-500/20 hover:text-purple-200 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105 hover:border-purple-400/30"
               onClick={() => navigate("/pyq")}
             >
               <Archive className="mr-2" />
@@ -184,7 +184,7 @@ export const Navbar = () => {
             {isAuthenticated ? (
               <Button
                 variant="ghost"
-                className="bg-white/10 text-white hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
+                className="bg-white/90 text-gray-800 hover:bg-white hover:text-black backdrop-blur-lg rounded-lg border border-white/50 transition-all duration-300 hover:scale-105 font-medium shadow-lg"
                 onClick={handleSignOut}
               >
                 Sign Out
@@ -192,7 +192,7 @@ export const Navbar = () => {
             ) : (
               <Button
                 variant="ghost"
-                className="bg-white/10 text-white hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
+                className="bg-white/90 text-gray-800 hover:bg-white hover:text-black backdrop-blur-lg rounded-lg border border-white/50 transition-all duration-300 hover:scale-105 font-medium shadow-lg"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -211,7 +211,7 @@ export const Navbar = () => {
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
+                      className="text-white hover:bg-purple-500/20 hover:text-purple-200 w-full justify-start rounded-lg backdrop-blur-lg transition-all duration-300"
                       onClick={upcomingToast}
                     >
                       <BookOpen className="mr-2" />
@@ -233,7 +233,7 @@ export const Navbar = () => {
                     >
                       <Button
                         variant="ghost"
-                        className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
+                        className="text-white hover:bg-purple-500/20 hover:text-purple-200 w-full justify-start rounded-lg backdrop-blur-lg transition-all duration-300"
                       >
                         <Calendar className="mr-2" />
                         Timetable Scheduler
@@ -250,7 +250,7 @@ export const Navbar = () => {
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
+                      className="text-white hover:bg-purple-500/20 hover:text-purple-200 w-full justify-start rounded-lg backdrop-blur-lg transition-all duration-300"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         navigate("/notes");
@@ -269,7 +269,7 @@ export const Navbar = () => {
               {/* PYQ */}
               <Button
                 variant="ghost"
-                className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
+                className="text-white hover:bg-purple-500/20 hover:text-purple-200 w-full justify-start rounded-lg backdrop-blur-lg transition-all duration-300"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   navigate("/pyq");
@@ -283,7 +283,7 @@ export const Navbar = () => {
               {isAuthenticated ? (
                 <Button
                   variant="ghost"
-                  className="bg-white/10 text-white hover:bg-white/20 w-full justify-start rounded-lg backdrop-blur-lg"
+                  className="bg-white/90 text-gray-800 hover:bg-white hover:text-black w-full justify-start rounded-lg backdrop-blur-lg transition-all duration-300 font-medium shadow-lg"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     handleSignOut();
@@ -294,7 +294,7 @@ export const Navbar = () => {
               ) : (
                 <Button
                   variant="ghost"
-                  className="bg-white/10 text-white hover:bg-white/20 w-full justify-start rounded-lg backdrop-blur-lg"
+                  className="bg-white/90 text-gray-800 hover:bg-white hover:text-black w-full justify-start rounded-lg backdrop-blur-lg transition-all duration-300 font-medium shadow-lg"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     navigate("/login");
