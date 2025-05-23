@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { ShieldCheck, FileText, Heart, Github, Twitter, Mail, ExternalLink } from "lucide-react"
+import { BeamsBackground } from "@/components/ui/beams-background"
 
 export const Footer = () => {
   const navigate = useNavigate()
@@ -51,13 +52,7 @@ export const Footer = () => {
   ]
 
   return (
-    <footer className="relative mt-20 border-t border-white/10">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
-        <div className="absolute inset-0 backdrop-blur-xl" />
-      </div>
-
+    <BeamsBackground intensity="subtle" className="relative mt-20 border-t border-white/10">
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 py-16">
         {/* Main Footer Content */}
@@ -195,10 +190,6 @@ export const Footer = () => {
           </div>
         </motion.div>
       </div>
-
-      {/* Animated Background Elements */}
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl animate-pulse delay-1000" />
-    </footer>
+    </BeamsBackground>
   )
 }
