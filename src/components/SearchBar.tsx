@@ -1,4 +1,3 @@
-
 // src/components/SearchBar.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { Search as SearchIcon } from "lucide-react";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SyllabusCard } from "./SyllabusCard";
+import { SyllabusCardSkeleton } from "./SyllabusCardSkeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { useLocation } from "react-router-dom";
 
@@ -81,8 +81,12 @@ export const SearchBar: React.FC = () => {
 
       {/* Results - Full width grid */}
       {isLoading ? (
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+        <div className="w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SyllabusCardSkeleton key={index} />
+            ))}
+          </div>
         </div>
       ) : (
         <>
