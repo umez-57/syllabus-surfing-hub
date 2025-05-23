@@ -7,11 +7,11 @@ import { SearchBar } from "@/components/SearchBar"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { motion } from "framer-motion"
 import { BookOpen, Users, Download, Star, ArrowRight, Sparkles } from "lucide-react"
-import { BeamsBackground } from "@/components/ui/beams-background"
+import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 
 export default function Index() {
   return (
-    <BeamsBackground intensity="medium" className="min-h-screen overflow-hidden">
+    <BackgroundGradientAnimation className="min-h-screen overflow-hidden">
       <Navbar />
 
       <main className="relative z-10 pt-20">
@@ -179,6 +179,6 @@ export default function Index() {
 
       <SpeedInsights />
       <Footer />
-    </BeamsBackground>
+    </BackgroundGradientAnimation>
   )
 }
