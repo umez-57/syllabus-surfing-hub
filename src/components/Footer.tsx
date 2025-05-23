@@ -1,3 +1,4 @@
+
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
@@ -10,9 +11,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { ShieldCheck, FileText, Heart, Github, Twitter, Mail, ExternalLink } from "lucide-react"
 import { BeamsBackground } from "@/components/ui/beams-background"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export const Footer = () => {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
 
   const footerLinks = [
     {
@@ -47,24 +50,24 @@ export const Footer = () => {
   ]
 
   return (
-    <footer className="relative mt-20 border-t border-white/10 overflow-hidden">
+    <footer className="relative mt-12 border-t border-white/10 overflow-hidden">
       <div className="absolute inset-0">
         <BeamsBackground intensity="subtle" className="h-full w-full" />
       </div>
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 py-8">
+      <div className="relative z-10 container mx-auto px-4 py-6">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
           {/* Brand Section */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-3">
                 <img src="/vit.png" alt="VIT Logo" className="h-10 w-auto" />
                 <div>
                   <h3 className="text-xl font-bold text-white">VIT AP Study Hub</h3>
@@ -72,7 +75,7 @@ export const Footer = () => {
                 </div>
               </div>
               
-              <p className="text-white/70 mb-6 max-w-md">
+              <p className="text-white/70 mb-4 max-w-md text-sm">
                 Empowering VIT-AP students with seamless access to academic resources, 
                 fostering collaborative learning and academic success.
               </p>
@@ -87,7 +90,7 @@ export const Footer = () => {
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.1, duration: 0.3 }}
                     viewport={{ once: true }}
-                    className="p-3 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
+                    className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
                   >
                     <social.icon className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
                   </motion.a>
@@ -96,17 +99,17 @@ export const Footer = () => {
             </motion.div>
           </div>
 
-          {/* Links Sections */}
+          {/* Links Sections - Displayed in a 2-column grid on mobile */}
           {footerLinks.map((section, sectionIndex) => (
-            <div key={section.title}>
+            <div key={section.title} className="col-span-1">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: sectionIndex * 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                <h4 className="text-white font-semibold mb-4">{section.title}</h4>
-                <ul className="space-y-3">
+                <h4 className="text-white font-semibold mb-2 text-sm">{section.title}</h4>
+                <ul className="space-y-1">
                   {section.links.map((link, linkIndex) => (
                     <motion.li
                       key={link.label}
@@ -117,7 +120,7 @@ export const Footer = () => {
                     >
                       <button
                         onClick={link.action}
-                        className="text-white/70 hover:text-white transition-colors duration-300 text-sm flex items-center gap-1 group"
+                        className="text-white/70 hover:text-white transition-colors duration-300 text-xs flex items-center gap-1 group"
                       >
                         {link.label}
                         <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -136,56 +139,77 @@ export const Footer = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="pt-4 border-t border-white/10"
+          className="pt-2 border-t border-white/10"
         >
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
             {/* Copyright */}
-            <div className="flex items-center gap-2 text-sm text-white/60">
+            <div className="flex items-center gap-1 text-xs text-white/60 flex-wrap justify-center md:justify-start">
               <span>© {new Date().getFullYear()} VIT AP Study Hub. All rights reserved.</span>
-              <span className="hidden md:inline">•</span>
+              <span className="hidden md:inline mx-1">•</span>
               <span className="flex items-center gap-1">
                 Made with <Heart className="w-3 h-3 text-red-400" /> for students
               </span>
             </div>
 
             {/* Quick Actions */}
-            <div className="flex items-center gap-3">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate("/privacy-policy")}
-                      className="text-white/70 hover:text-white hover:bg-white/5 rounded-lg border border-white/10"
-                    >
-                      <ShieldCheck className="mr-2 h-3 w-3" />
-                      Privacy
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>View our Privacy Policy</p>
-                  </TooltipContent>
-                </Tooltip>
+            {!isMobile && (
+              <div className="flex items-center gap-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate("/privacy-policy")}
+                        className="text-white/70 hover:text-white hover:bg-white/5 rounded-lg border border-white/10"
+                      >
+                        <ShieldCheck className="mr-1 h-3 w-3" />
+                        Privacy
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View our Privacy Policy</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate("/terms-of-service")}
-                      className="text-white/70 hover:text-white hover:bg-white/5 rounded-lg border border-white/10"
-                    >
-                      <FileText className="mr-2 h-3 w-3" />
-                      Terms
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>View our Terms of Service</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate("/terms-of-service")}
+                        className="text-white/70 hover:text-white hover:bg-white/5 rounded-lg border border-white/10"
+                      >
+                        <FileText className="mr-1 h-3 w-3" />
+                        Terms
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View our Terms of Service</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+            
+            {/* Mobile Privacy/Terms links */}
+            {isMobile && (
+              <div className="flex items-center gap-3 mt-2">
+                <button 
+                  onClick={() => navigate("/privacy-policy")} 
+                  className="text-xs text-white/60 hover:text-white"
+                >
+                  Privacy
+                </button>
+                <span className="text-white/40">•</span>
+                <button 
+                  onClick={() => navigate("/terms-of-service")} 
+                  className="text-xs text-white/60 hover:text-white"
+                >
+                  Terms
+                </button>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
