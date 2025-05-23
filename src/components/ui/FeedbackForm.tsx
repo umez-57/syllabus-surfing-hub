@@ -56,13 +56,13 @@ export function FeedbackForm({ isOpen, onClose }: FeedbackFormProps) {
     console.log("Feedback data:", data);
     
     try {
-      // Prepare template parameters for Email.js
+      // Prepare template parameters for Email.js - matching your template variables
       const templateParams = {
-        name: data.name,
-        email: data.email,
+        from_name: data.name,        // Changed from 'name' to 'from_name'
+        from_email: data.email,      // Changed from 'email' to 'from_email'
         subject: data.subject,
         message: data.message,
-        timestamp: new Date().toLocaleString(),
+        current_date: new Date().toLocaleString(), // Changed from 'timestamp' to 'current_date'
       };
 
       console.log("Sending email with template params:", templateParams);
