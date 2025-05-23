@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 const defaultTheme = require("tailwindcss/defaultTheme");
 const colors = require("tailwindcss/colors");
@@ -39,8 +38,8 @@ export default {
           foreground: "#ea384c",
         },
         accent: {
-          DEFAULT: "#ffe600",
-          foreground: "#000000",
+          DEFAULT: "#fff6",
+          foreground: "#ea384c",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -58,41 +57,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Galaxy theme colors
-        galaxy: {
-          dark: "#0d0b26",
-          purple: "#311b92",
-          cyan: "#00d4ff",
-        },
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],
-        display: ["Playfair Display", "serif"],
       },
       keyframes: {
         fadeIn: {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
-        },
-        galaxyShift: {
-          "0%, 100%": { backgroundPosition: "0% 50%" },
-          "50%": { backgroundPosition: "100% 50%" },
-        },
-        float: {
-          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
-          "50%": { transform: "translateY(-20px) rotate(180deg)" },
-        },
-        drift: {
-          "0%, 100%": { transform: "translateX(0)" },
-          "50%": { transform: "translateX(30px)" },
-        },
-        glow: {
-          "0%, 100%": { boxShadow: "0 0 20px #ffe600" },
-          "50%": { boxShadow: "0 0 40px #ffe600, 0 0 60px #ffe600" },
-        },
-        staggerFadeIn: {
-          from: { opacity: "0", transform: "translateY(20px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
         },
         "star-movement-bottom": {
           "0%": {
@@ -136,11 +108,6 @@ export default {
       },
       animation: {
         fadeIn: "fadeIn 0.5s ease-in-out",
-        galaxyShift: "galaxyShift 20s ease-in-out infinite",
-        float: "float 8s ease-in-out infinite",
-        drift: "drift 12s ease-in-out infinite",
-        glow: "glow 3s ease-in-out infinite",
-        staggerFadeIn: "staggerFadeIn 0.6s ease-out forwards",
         "star-movement-bottom": "star-movement-bottom linear infinite alternate",
         "star-movement-top": "star-movement-top linear infinite alternate",
         "shimmer-slide": "shimmer-slide var(--speed) ease-in-out infinite alternate",

@@ -4,7 +4,10 @@ import type { Database as OriginalDatabase } from './types';
 // Extend the original Database type with missing tables
 export interface ExtendedDatabase extends OriginalDatabase {
   public: {
-    Tables: OriginalDatabase['public']['Tables'] & {
+    Tables: {
+      // Include all original tables from the original Database type
+      ...OriginalDatabase['public']['Tables'],
+      
       // Add missing notes table
       notes: {
         Row: {
