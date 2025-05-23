@@ -1,5 +1,5 @@
 
-import React from "react"
+import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
@@ -9,13 +9,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
-import { ShieldCheck, FileText, Heart, Github, Twitter, Mail, ExternalLink } from "lucide-react"
+import { ShieldCheck, FileText, Heart, Github, Twitter, Mail, ExternalLink, MessageSquare } from "lucide-react"
 import { BeamsBackground } from "@/components/ui/beams-background"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { FeedbackForm } from "@/components/ui/FeedbackForm"
 
 export const Footer = () => {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
 
   const footerLinks = [
     {
@@ -31,7 +33,7 @@ export const Footer = () => {
       title: "Resources",
       links: [
         { label: "Timetable Schedule Guide", action: () => navigate("/guide") },
-        { label: "Feedback", action: () => {} }
+        { label: "Feedback", action: () => setIsFeedbackOpen(true) }
       ]
     },
     {
@@ -133,6 +135,26 @@ export const Footer = () => {
           ))}
         </div>
 
+        {/* Feedback Button (Fixed position) */}
+        <div className="fixed right-6 bottom-6 z-50">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => setIsFeedbackOpen(true)} 
+                  className="rounded-full shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 p-4 h-auto"
+                  size="icon"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>Send us your feedback</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
         {/* Bottom Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -213,6 +235,9 @@ export const Footer = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Feedback Dialog */}
+      <FeedbackForm isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
     </footer>
   )
 }
