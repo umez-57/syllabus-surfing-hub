@@ -52,7 +52,11 @@ export const Footer = () => {
   ]
 
   return (
-    <BeamsBackground intensity="subtle" className="relative mt-20 border-t border-white/10">
+    <footer className="relative mt-20 border-t border-white/10 overflow-hidden">
+      <div className="absolute inset-0">
+        <BeamsBackground intensity="subtle" className="h-full w-full" />
+      </div>
+      
       {/* Content */}
       <div className="relative z-10 container mx-auto px-6 py-16">
         {/* Main Footer Content */}
@@ -190,6 +194,6 @@ export const Footer = () => {
           </div>
         </motion.div>
       </div>
-    </BeamsBackground>
+    </footer>
   )
 }
