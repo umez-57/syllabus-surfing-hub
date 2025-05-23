@@ -175,7 +175,7 @@ export function SyllabusCard({
               </div>
             </div>
 
-            {/* Action Buttons - Updated with consistent glassmorphic design */}
+            {/* Action Buttons - Updated with simplified design and different colors */}
             <div className="flex flex-row gap-3">
               <motion.button
                 onClick={handleView}
@@ -183,29 +183,25 @@ export function SyllabusCard({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="
-                  flex-1 flex items-center justify-center gap-3
+                  flex-1 flex items-center justify-center gap-2
                   px-6 py-4
                   text-sm font-semibold
-                  bg-white/5 backdrop-blur-xl
-                  border border-white/20
-                  hover:bg-white/10 hover:border-white/30
+                  bg-indigo-600/20 backdrop-blur-xl
+                  border border-indigo-400/30
+                  hover:bg-indigo-600/30 hover:border-indigo-400/50
                   text-white rounded-2xl
                   transition-all duration-300
-                  hover:shadow-lg hover:shadow-indigo-500/20
                   disabled:opacity-50 disabled:cursor-not-allowed
                   group/btn relative overflow-hidden
                 "
               >
-                {/* Button Animated Highlight */}
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-blue-500/10 to-teal-500/10 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                
-                <div className="relative z-10 flex items-center gap-3">
+                <div className="relative z-10 flex items-center gap-2">
                   {loadingView ? (
                     <ClipLoader size={18} color="#fff" />
                   ) : (
                     <>
-                      <Eye className="w-5 h-5 group-hover/btn:scale-110 transition-transform text-indigo-400" />
-                      <span>View Syllabus</span>
+                      <Eye className="w-5 h-5 text-indigo-300 group-hover/btn:text-indigo-200 transition-colors duration-300" />
+                      <span className="text-indigo-100 group-hover/btn:text-white transition-colors duration-300">View</span>
                     </>
                   )}
                 </div>
@@ -216,31 +212,27 @@ export function SyllabusCard({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="
-                  flex-1 flex items-center justify-center gap-3
+                  flex-1 flex items-center justify-center gap-2
                   px-6 py-4
                   text-sm font-semibold
-                  bg-white/5 backdrop-blur-xl
-                  border border-white/20
-                  hover:bg-white/10 hover:border-white/30
+                  bg-teal-600/20 backdrop-blur-xl
+                  border border-teal-400/30
+                  hover:bg-teal-600/30 hover:border-teal-400/50
                   text-white rounded-2xl
                   transition-all duration-300
-                  hover:shadow-lg hover:shadow-indigo-500/20
                   group/share relative overflow-hidden
                 "
               >
-                {/* Button Animated Highlight */}
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-blue-500/10 to-teal-500/10 opacity-0 group-hover/share:opacity-100 transition-opacity duration-300" />
-                
-                <div className="relative z-10 flex items-center gap-3">
-                  <Share2 className="w-5 h-5 group-hover/share:scale-110 transition-transform text-indigo-400" />
-                  <span>Share Syllabus</span>
+                <div className="relative z-10 flex items-center gap-2">
+                  <Share2 className="w-5 h-5 text-teal-300 group-hover/share:text-teal-200 transition-colors duration-300" />
+                  <span className="text-teal-100 group-hover/share:text-white transition-colors duration-300">Share</span>
                 </div>
               </motion.button>
             </div>
           </div>
 
           {/* Decorative Elements */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-teal-500 opacity-60" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-500 opacity-60" />
         </div>
       </motion.div>
 
