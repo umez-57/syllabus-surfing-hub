@@ -1,3 +1,4 @@
+
 import React from "react"
 import { Hero } from "@/components/hero"
 import { Navbar } from "@/components/Navbar"
@@ -5,9 +6,8 @@ import { Footer } from "@/components/Footer"
 import { SearchBar } from "@/components/SearchBar"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { motion } from "framer-motion"
-import { BookOpen, Users, Download, Star, ArrowRight } from "lucide-react"
+import { BookOpen, Users, Download, Star, ArrowRight, Sparkles } from "lucide-react"
 import { BeamsBackground } from "@/components/ui/beams-background"
-import { HeaderLamp } from "@/components/ui/header-lamp"
 
 export default function Index() {
   return (
@@ -23,14 +23,15 @@ export default function Index() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center max-w-7xl mx-auto"
           >
-            {/* Lamp Effect - larger container */}
+            {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-12 h-24"
+              className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-white/20 bg-white/5 backdrop-blur-xl"
             >
-              <HeaderLamp className="h-24" />
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className="text-sm text-white/80">VIT-AP Study Platform 2.0</span>
             </motion.div>
 
             {/* Main Heading */}
