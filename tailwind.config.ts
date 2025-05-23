@@ -156,6 +156,15 @@ export default {
             "box-shadow": "0 0 40px rgba(255, 230, 0, 0.8)",
           },
         },
+        // Meteor effect
+        "meteor": {
+          "0%": { transform: "rotate(215deg) translateX(0)", opacity: "1" },
+          "70%": { opacity: "1" },
+          "100%": {
+            transform: "rotate(215deg) translateX(-500px)",
+            opacity: "0",
+          },
+        },
       },
       animation: {
         fadeIn: "fadeIn 0.5s ease-in-out",
@@ -168,6 +177,8 @@ export default {
         "float": "float 8s ease-in-out infinite",
         "drift": "drift 12s linear infinite", 
         "glow": "glow 2s ease-in-out infinite",
+        // Meteor effect
+        "meteor-effect": "meteor 5s linear infinite",
       },
       backgroundImage: {
         "grid-pattern": "url('/grid-pattern.svg')",

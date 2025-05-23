@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Eye, Share2, X, FileText, Calendar, User, GraduationCap, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,7 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
 import { motion } from "framer-motion";
+import { Meteors } from "@/components/ui/meteors";
 
 export interface SyllabusCardProps {
   id: string;
@@ -104,6 +106,16 @@ export function SyllabusCard({
           {/* Floating Geometric Elements */}
           <div className="absolute top-6 right-6 w-20 h-20 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="absolute bottom-8 left-8 w-16 h-16 bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+          {/* Meteors Effect - Only on hover */}
+          {isHovered && (
+            <div className="absolute inset-0 pointer-events-none">
+              <Meteors 
+                number={15} 
+                className="animate-meteor-effect absolute top-1/2 left-1/2 h-0.5 w-0.5 rounded-[9999px] bg-purple-400/60 shadow-[0_0_0_1px_#a855f780] rotate-[215deg] before:bg-gradient-to-r before:from-[#a855f7] before:to-transparent"
+              />
+            </div>
+          )}
 
           {/* Content */}
           <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col">
