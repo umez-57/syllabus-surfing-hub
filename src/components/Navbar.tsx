@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* icons */
 import {
@@ -11,6 +13,9 @@ import {
   Menu,
   X,
   Archive,
+  User,
+  LogOut,
+  ChevronDown,
 } from "lucide-react";
 
 /* UI primitives */
@@ -26,6 +31,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   /* ───────── auth listener ───────── */
   useEffect(() => {
@@ -34,12 +40,14 @@ export const Navbar = () => {
         data: { session },
       } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+      setUserEmail(session?.user?.email || null);
     })();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session);
+      setUserEmail(session?.user?.email || null);
 
       if (event === "SIGNED_IN") {
         toast({
@@ -76,237 +84,255 @@ export const Navbar = () => {
       duration: 4000,
     });
 
-  /* ───────── UI ───────── */
+  const menuItems = [
+    {
+      label: "Mock Course Registration",
+      icon: BookOpen,
+      action: upcomingToast,
+      tooltip: "Coming soon!",
+      disabled: true
+    },
+    {
+      label: "Timetable Scheduler",
+      icon: Calendar,
+      action: () => window.open("https://timetable.vitaphub.in/", "_blank"),
+      tooltip: "Manage your Timetable"
+    },
+    {
+      label: "Notes",
+      icon: StickyNote,
+      action: () => navigate("/notes"),
+      tooltip: "View Notes"
+    },
+    {
+      label: "PYQ",
+      icon: Archive,
+      action: () => navigate("/pyq"),
+      tooltip: "Previous Year Questions"
+    }
+  ];
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/30 border-b border-white/10">
-      <div className="container mx-auto px-6 py-2">
-        <div className="flex items-center justify-between h-[70px]">
-          {/* logo */}
-          <div className="flex items-center">
-            <a href="." className="flex items-center">
+    <motion.nav 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="fixed top-0 left-0 right-0 z-50"
+    >
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-2xl border-b border-white/10" />
+      
+      <div className="relative container mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <motion.div 
+            className="flex items-center"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <a href="/" className="flex items-center">
               <img
                 src="/vit.png"
                 alt="VIT Logo"
-                className="h-[120px] w-auto object-cover md:h-[150px]"
+                className="h-12 w-auto object-cover"
               />
             </a>
-          </div>
+          </motion.div>
 
-          {/* mobile hamburger */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/10 backdrop-blur-lg p-2 rounded-lg border border-white/10"
-              onClick={toggleMobileMenu}
-              aria-label="Toggle Menu"
-            >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
-          </div>
-
-          {/* desktop menu */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center space-x-2">
             <TooltipProvider>
-              {/* Mock Course Registration – disabled */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
-                    onClick={upcomingToast}
-                  >
-                    <BookOpen className="mr-2" />
-                    <span className="flex flex-col items-start leading-4">
-                      <span>Mock Course</span>
-                      <span>Registration</span>
-                    </span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Coming soon!</p>
-                </TooltipContent>
-              </Tooltip>
-
-              {/* Timetable Scheduler */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="https://timetable.vitaphub.in/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button 
-                      variant="ghost" 
-                      className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
-                    >
-                      <Calendar className="mr-2" />
-                      <span className="flex flex-col items-start leading-4">
-                        <span>Timetable</span>
-                        <span>Scheduler</span>
-                      </span>
-                    </Button>
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Manage your Timetable</p>
-                </TooltipContent>
-              </Tooltip>
-
-              {/* Notes */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
-                    onClick={() => navigate("/notes")}
-                  >
-                    <StickyNote className="mr-2" />
-                    Notes
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>View Notes</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {/* PYQ */}
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
-              onClick={() => navigate("/pyq")}
-            >
-              <Archive className="mr-2" />
-              PYQ
-            </Button>
-
-            {/* auth buttons */}
-            {isAuthenticated ? (
-              <Button
-                variant="ghost"
-                className="bg-white/10 text-white hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
-                onClick={handleSignOut}
-              >
-                Sign Out
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                className="bg-white/10 text-white hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
-                onClick={() => navigate("/login")}
-              >
-                Login
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* mobile dropdown */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-black/50 backdrop-blur-lg rounded-lg border border-white/10 mt-2">
-            <div className="px-6 py-3 space-y-2">
-              <TooltipProvider>
-                {/* Mock Course Registration – disabled (mobile) */}
-                <Tooltip>
+              {menuItems.map((item, index) => (
+                <Tooltip key={item.label}>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
-                      onClick={upcomingToast}
-                    >
-                      <BookOpen className="mr-2" />
-                      Mock Course Registration
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Coming soon!</p>
-                  </TooltipContent>
-                </Tooltip>
-
-                {/* Timetable Scheduler */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <a
-                      href="https://timetable.vitaphub.in/"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <motion.div
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index, duration: 0.5 }}
                     >
                       <Button
                         variant="ghost"
-                        className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
+                        className={`
+                          text-white hover:bg-white/10 
+                          backdrop-blur-xl rounded-xl
+                          border border-white/10 hover:border-white/20
+                          transition-all duration-300 hover:scale-105
+                          px-4 py-2
+                          ${item.disabled ? 'opacity-60' : ''}
+                        `}
+                        onClick={item.action}
                       >
-                        <Calendar className="mr-2" />
-                        Timetable Scheduler
+                        <item.icon className="mr-2 w-4 h-4" />
+                        <span className="text-sm font-medium">{item.label}</span>
                       </Button>
-                    </a>
+                    </motion.div>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Manage your Timetable</p>
+                    <p>{item.tooltip}</p>
                   </TooltipContent>
                 </Tooltip>
+              ))}
+            </TooltipProvider>
 
-                {/* Notes */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        navigate("/notes");
-                      }}
-                    >
-                      <StickyNote className="mr-2" />
-                      Notes
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>View Notes</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              {/* PYQ */}
-              <Button
-                variant="ghost"
-                className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  navigate("/pyq");
-                }}
-              >
-                <Archive className="mr-2" />
-                PYQ
-              </Button>
-
-              {/* auth buttons */}
+            {/* Auth Section */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="ml-4"
+            >
               {isAuthenticated ? (
-                <Button
-                  variant="ghost"
-                  className="bg-white/10 text-white hover:bg-white/20 w-full justify-start rounded-lg backdrop-blur-lg"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleSignOut();
-                  }}
-                >
-                  Sign Out
-                </Button>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                    <User className="w-4 h-4 text-white/70" />
+                    <span className="text-sm text-white/70 max-w-32 truncate">
+                      {userEmail}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0 rounded-xl px-4 py-2 transition-all duration-300 hover:scale-105"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
               ) : (
                 <Button
                   variant="ghost"
-                  className="bg-white/10 text-white hover:bg-white/20 w-full justify-start rounded-lg backdrop-blur-lg"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    navigate("/login");
-                  }}
+                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white border-0 rounded-xl px-6 py-2 transition-all duration-300 hover:scale-105"
+                  onClick={() => navigate("/login")}
                 >
+                  <User className="w-4 h-4 mr-2" />
                   Login
                 </Button>
               )}
-            </div>
+            </motion.div>
           </div>
-        )}
+
+          {/* Mobile Menu Button */}
+          <motion.div 
+            className="lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Button
+              variant="ghost"
+              className="text-white hover:bg-white/10 backdrop-blur-lg p-3 rounded-xl border border-white/10"
+              onClick={toggleMobileMenu}
+              aria-label="Toggle Menu"
+            >
+              <AnimatePresence mode="wait">
+                {isMobileMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="h-5 w-5" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Menu className="h-5 w-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="lg:hidden mt-4 overflow-hidden"
+            >
+              <div className="bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 p-4">
+                <div className="space-y-3">
+                  {menuItems.map((item, index) => (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                    >
+                      <Button
+                        variant="ghost"
+                        className={`
+                          text-white hover:bg-white/10 w-full justify-start rounded-xl
+                          ${item.disabled ? 'opacity-60' : ''}
+                        `}
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          item.action();
+                        }}
+                      >
+                        <item.icon className="mr-3 w-4 h-4" />
+                        {item.label}
+                      </Button>
+                    </motion.div>
+                  ))}
+                  
+                  {/* Mobile Auth */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="pt-3 border-t border-white/10"
+                  >
+                    {isAuthenticated ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5">
+                          <User className="w-4 h-4 text-white/70" />
+                          <span className="text-sm text-white/70 truncate">
+                            {userEmail}
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white w-full justify-start rounded-xl"
+                          onClick={() => {
+                            setIsMobileMenuOpen(false);
+                            handleSignOut();
+                          }}
+                        >
+                          <LogOut className="mr-3 w-4 h-4" />
+                          Sign Out
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white w-full justify-start rounded-xl"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          navigate("/login");
+                        }}
+                      >
+                        <User className="mr-3 w-4 h-4" />
+                        Login
+                      </Button>
+                    )}
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </nav>
+    </motion.nav>
   );
 };

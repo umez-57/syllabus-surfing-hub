@@ -1,11 +1,13 @@
+
 import React, { useState } from "react";
-import { Eye, Share2, X } from "lucide-react";
+import { Eye, Share2, X, Download, FileText, Calendar, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { toast } from "sonner";
 import { ClipLoader } from "react-spinners";
+import { motion } from "framer-motion";
 
 export interface SyllabusCardProps {
   id: string;
@@ -71,104 +73,114 @@ export function SyllabusCard({
   };
 
   return (
-    <div className="relative group">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="relative group"
+    >
       <div 
         className={`
           relative overflow-hidden 
-          min-h-[280px] sm:h-[320px]
-          backdrop-blur-xl bg-black/30 rounded-2xl
-          border border-white/20
-          shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]
+          h-[360px]
+          rounded-3xl
+          border border-white/10
+          bg-gradient-to-br from-white/10 to-white/5
+          backdrop-blur-xl
           transition-all duration-500 ease-out
-          hover:translate-y-[-10px]
-          hover:shadow-[0_20px_50px_0_rgba(255,255,255,0.15)]
-          group-hover:border-white/40
-          ${highlight ? 'ring-2 ring-white/20' : ''}
+          hover:border-white/20
+          hover:shadow-2xl hover:shadow-purple-500/20
+          hover:-translate-y-2
+          ${highlight ? 'ring-2 ring-purple-400/50 shadow-lg shadow-purple-400/20' : ''}
         `}
       >
-        <div className="p-6 h-full flex flex-col relative z-10">
-          <h3 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wider mb-4 line-clamp-2 text-center">
-            {title}
-          </h3>
-          
-          <div className="border-t border-b border-white/10 py-4 flex-grow backdrop-blur-sm rounded-xl">
-            <div className="sm:hidden text-center space-y-2">
-              <p className="text-white/90 text-sm">
-                <span className="font-semibold">Course Code:</span> {code}
-              </p>
-              <p className="text-white/90 text-sm">
-                <span className="font-semibold">Credits:</span> {credits}
-              </p>
+        {/* Background Gradient Effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        
+        {/* Content */}
+        <div className="relative z-10 p-6 h-full flex flex-col">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-xs font-medium text-white/60 uppercase tracking-wide">
+                  {code}
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white line-clamp-2 mb-2">
+                {title}
+              </h3>
             </div>
-            
-            <p className="hidden sm:block text-white/90 text-sm text-center mb-2">
-              <span className="font-semibold">Course Code:</span> {code}
-              <span className="mx-2">|</span>
-              <span className="font-semibold">Credits:</span> {credits}
-            </p>
-            
-            <p className="text-white/70 text-sm line-clamp-3 text-center px-2 mt-2">
-              {description}
-            </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          {/* Description */}
+          <div className="flex-grow mb-6">
+            <p className="text-white/70 text-sm line-clamp-3 mb-4">
+              {description}
+            </p>
+            
+            {/* Meta Info */}
+            <div className="flex items-center gap-4 text-xs text-white/50">
+              <div className="flex items-center gap-1">
+                <User className="w-3 h-3" />
+                <span>{credits} Credits</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                <span>Updated recently</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3">
             <button
               onClick={handleView}
-              className={`
-                flex items-center justify-center gap-2
-                px-6 py-3 w-full
-                text-sm font-semibold tracking-wider
-                bg-gradient-to-r from-white/10 to-white/5
-                hover:from-white/20 hover:to-white/10
+              disabled={loadingView}
+              className="
+                flex-1 flex items-center justify-center gap-2
+                px-4 py-3
+                text-sm font-semibold
+                bg-gradient-to-r from-purple-500 to-cyan-500
+                hover:from-purple-600 hover:to-cyan-600
                 text-white rounded-xl
-                backdrop-blur-lg
                 transition-all duration-300
-                border border-white/10
-                hover:border-white/30
-                hover:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.3)]
+                hover:shadow-lg hover:shadow-purple-500/25
                 active:scale-95
                 disabled:opacity-50 disabled:cursor-not-allowed
-              `}
-              disabled={loadingView}
+                group/btn
+              "
             >
               {loadingView ? (
                 <ClipLoader size={16} color="#fff" />
               ) : (
                 <>
-                  <Eye className="w-5 h-5" />
-                  <span>VIEW</span>
+                  <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                  <span>View</span>
                 </>
               )}
             </button>
 
             <button
               onClick={handleShare}
-              className={`
+              className="
                 flex items-center justify-center gap-2
-                px-6 py-3 w-full
-                text-sm font-semibold tracking-wider
-                bg-gradient-to-r from-purple-500/20 to-blue-500/20
-                hover:from-purple-500/30 hover:to-blue-500/30
-                text-white rounded-xl
-                backdrop-blur-xl
-                transition-all duration-500
+                px-4 py-3
+                text-sm font-semibold
                 border border-white/20
                 hover:border-white/40
-                hover:shadow-[0_0_30px_-5px_rgba(168,85,247,0.4)]
+                text-white rounded-xl
+                backdrop-blur-xl
+                transition-all duration-300
+                hover:bg-white/10
                 active:scale-95
                 group/share
-                overflow-hidden
-                relative
-                before:absolute before:inset-0
-                before:bg-gradient-to-r before:from-purple-500/10 before:to-blue-500/10
-                before:translate-x-[-100%] before:blur-xl
-                hover:before:translate-x-[100%]
-                before:transition-transform before:duration-1000
-              `}
+              "
             >
-              <Share2 className="w-5 h-5 transition-transform duration-300 group-hover/share:scale-110" />
-              <span className="relative z-10">SHARE</span>
+              <Share2 className="w-4 h-4 group-hover/share:scale-110 transition-transform" />
             </button>
           </div>
         </div>
@@ -176,8 +188,18 @@ export function SyllabusCard({
 
       {/* PDF Viewer Modal */}
       {pdfUrl && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8">
-          <div className="relative w-full max-w-4xl h-[80vh] bg-white rounded-2xl overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4"
+        >
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="relative w-full max-w-6xl h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl"
+          >
             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
               <Viewer fileUrl={pdfUrl} />
             </Worker>
@@ -186,14 +208,14 @@ export function SyllabusCard({
                 URL.revokeObjectURL(pdfUrl);
                 setPdfUrl(null);
               }}
-              className="absolute top-4 right-4 bg-black text-white hover:bg-gray-800 px-4 py-2 rounded-xl flex items-center gap-2 transition-colors"
+              className="absolute top-4 right-4 p-3 bg-black/80 hover:bg-black text-white rounded-xl flex items-center gap-2 transition-colors backdrop-blur-xl"
             >
               <X className="w-4 h-4" />
-              Close
+              <span className="hidden sm:inline">Close</span>
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
