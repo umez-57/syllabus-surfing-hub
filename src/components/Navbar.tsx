@@ -78,49 +78,48 @@ export const Navbar = () => {
 
   /* ───────── UI ───────── */
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-700/50">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* logo - keeping this unchanged */}
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/30 border-b border-white/10">
+      <div className="container mx-auto px-6 py-2">
+        <div className="flex items-center justify-between h-[70px]">
+          {/* logo */}
           <div className="flex items-center">
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate("/home")}>
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-slate-900 font-bold text-lg">🎓</span>
-              </div>
-              <div className="text-white">
-                <span className="font-bold text-xl">VIT AP</span>
-                <br />
-                <span className="text-sm text-slate-300">Study Hub</span>
-              </div>
-            </div>
+            <a href="." className="flex items-center">
+              <img
+                src="/vit.png"
+                alt="VIT Logo"
+                className="h-[120px] w-auto object-cover md:h-[150px]"
+              />
+            </a>
           </div>
 
           {/* mobile hamburger */}
           <div className="md:hidden">
             <Button
               variant="ghost"
-              size="icon"
-              className="text-white hover:bg-slate-800"
+              className="text-white hover:bg-white/10 backdrop-blur-lg p-2 rounded-lg border border-white/10"
               onClick={toggleMobileMenu}
               aria-label="Toggle Menu"
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
 
           {/* desktop menu */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-4">
             <TooltipProvider>
               {/* Mock Course Registration – disabled */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="text-slate-300 hover:text-white hover:bg-slate-800 px-4 py-2 rounded-lg transition-all duration-200"
+                    className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
                     onClick={upcomingToast}
                   >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Mock Course Registration
+                    <BookOpen className="mr-2" />
+                    <span className="flex flex-col items-start leading-4">
+                      <span>Mock Course</span>
+                      <span>Registration</span>
+                    </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -138,10 +137,13 @@ export const Navbar = () => {
                   >
                     <Button 
                       variant="ghost" 
-                      className="text-slate-300 hover:text-white hover:bg-slate-800 px-4 py-2 rounded-lg transition-all duration-200"
+                      className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
                     >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Timetable Scheduler
+                      <Calendar className="mr-2" />
+                      <span className="flex flex-col items-start leading-4">
+                        <span>Timetable</span>
+                        <span>Scheduler</span>
+                      </span>
                     </Button>
                   </a>
                 </TooltipTrigger>
@@ -155,10 +157,10 @@ export const Navbar = () => {
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="text-slate-300 hover:text-white hover:bg-slate-800 px-4 py-2 rounded-lg transition-all duration-200"
+                    className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
                     onClick={() => navigate("/notes")}
                   >
-                    <StickyNote className="mr-2 h-4 w-4" />
+                    <StickyNote className="mr-2" />
                     Notes
                   </Button>
                 </TooltipTrigger>
@@ -171,26 +173,26 @@ export const Navbar = () => {
             {/* PYQ */}
             <Button
               variant="ghost"
-              className="text-slate-300 hover:text-white hover:bg-slate-800 px-4 py-2 rounded-lg transition-all duration-200"
+              className="text-white hover:bg-white/10 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
               onClick={() => navigate("/pyq")}
             >
-              <Archive className="mr-2 h-4 w-4" />
+              <Archive className="mr-2" />
               PYQ
             </Button>
 
             {/* auth buttons */}
             {isAuthenticated ? (
               <Button
-                variant="outline"
-                className="ml-4 bg-slate-800 border-slate-600 text-white hover:bg-slate-700 hover:border-slate-500"
+                variant="ghost"
+                className="bg-white/10 text-white hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
                 onClick={handleSignOut}
               >
                 Sign Out
               </Button>
             ) : (
               <Button
-                variant="outline"
-                className="ml-4 bg-slate-800 border-slate-600 text-white hover:bg-slate-700 hover:border-slate-500"
+                variant="ghost"
+                className="bg-white/10 text-white hover:bg-white/20 backdrop-blur-lg rounded-lg border border-white/10 transition-all duration-300 hover:scale-105"
                 onClick={() => navigate("/login")}
               >
                 Login
@@ -201,18 +203,18 @@ export const Navbar = () => {
 
         {/* mobile dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-slate-800/95 backdrop-blur-md rounded-lg border border-slate-700/50 mt-2 mb-4">
-            <div className="px-4 py-3 space-y-1">
+          <div className="md:hidden bg-black/50 backdrop-blur-lg rounded-lg border border-white/10 mt-2">
+            <div className="px-6 py-3 space-y-2">
               <TooltipProvider>
                 {/* Mock Course Registration – disabled (mobile) */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="text-slate-300 hover:text-white hover:bg-slate-700 w-full justify-start rounded-lg"
+                      className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
                       onClick={upcomingToast}
                     >
-                      <BookOpen className="mr-2 h-4 w-4" />
+                      <BookOpen className="mr-2" />
                       Mock Course Registration
                     </Button>
                   </TooltipTrigger>
@@ -231,9 +233,9 @@ export const Navbar = () => {
                     >
                       <Button
                         variant="ghost"
-                        className="text-slate-300 hover:text-white hover:bg-slate-700 w-full justify-start rounded-lg"
+                        className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
                       >
-                        <Calendar className="mr-2 h-4 w-4" />
+                        <Calendar className="mr-2" />
                         Timetable Scheduler
                       </Button>
                     </a>
@@ -248,13 +250,13 @@ export const Navbar = () => {
                   <TooltipTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="text-slate-300 hover:text-white hover:bg-slate-700 w-full justify-start rounded-lg"
+                      className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         navigate("/notes");
                       }}
                     >
-                      <StickyNote className="mr-2 h-4 w-4" />
+                      <StickyNote className="mr-2" />
                       Notes
                     </Button>
                   </TooltipTrigger>
@@ -267,42 +269,40 @@ export const Navbar = () => {
               {/* PYQ */}
               <Button
                 variant="ghost"
-                className="text-slate-300 hover:text-white hover:bg-slate-700 w-full justify-start rounded-lg"
+                className="text-white hover:bg-white/10 w-full justify-start rounded-lg backdrop-blur-lg"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   navigate("/pyq");
                 }}
               >
-                <Archive className="mr-2 h-4 w-4" />
+                <Archive className="mr-2" />
                 PYQ
               </Button>
 
               {/* auth buttons */}
-              <div className="pt-2 border-t border-slate-700/50 mt-2">
-                {isAuthenticated ? (
-                  <Button
-                    variant="outline"
-                    className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600 w-full justify-start rounded-lg"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handleSignOut();
-                    }}
-                  >
-                    Sign Out
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="bg-slate-700 border-slate-600 text-white hover:bg-slate-600 w-full justify-start rounded-lg"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      navigate("/login");
-                    }}
-                  >
-                    Login
-                  </Button>
-                )}
-              </div>
+              {isAuthenticated ? (
+                <Button
+                  variant="ghost"
+                  className="bg-white/10 text-white hover:bg-white/20 w-full justify-start rounded-lg backdrop-blur-lg"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleSignOut();
+                  }}
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  className="bg-white/10 text-white hover:bg-white/20 w-full justify-start rounded-lg backdrop-blur-lg"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate("/login");
+                  }}
+                >
+                  Login
+                </Button>
+              )}
             </div>
           </div>
         )}
