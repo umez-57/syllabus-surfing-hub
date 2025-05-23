@@ -165,11 +165,11 @@ export const Footer = () => {
                   <TooltipTrigger asChild>
                     <Button 
                       onClick={() => setIsFeedbackOpen(true)} 
-                      className="group flex items-center gap-2 rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-5 py-6 h-auto"
-                      size="lg"
+                      className="group flex items-center gap-2 rounded-full shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-4 py-2 h-10"
+                      size="default"
                     >
-                      <MessageSquare className="h-5 w-5 animate-pulse" />
-                      <span className="font-medium">Give Feedback</span>
+                      <MessageSquare className="h-4 w-4 animate-pulse" />
+                      <span className="text-sm font-medium">Feedback</span>
                       <motion.span 
                         className="absolute inset-0 rounded-full bg-white/20"
                         animate={{ scale: [1, 1.05, 1], opacity: [0, 0.5, 0] }}
@@ -190,7 +190,7 @@ export const Footer = () => {
           )}
         </AnimatePresence>
 
-        {/* Bottom Section */}
+        {/* Bottom Section - Simplified */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -198,75 +198,15 @@ export const Footer = () => {
           viewport={{ once: true }}
           className="pt-2 border-t border-white/10"
         >
-          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-            {/* Copyright */}
-            <div className="flex items-center gap-1 text-xs text-white/60 flex-wrap justify-center md:justify-start">
+          <div className="flex justify-center items-center">
+            {/* Simplified Copyright */}
+            <div className="flex items-center gap-1 text-xs text-white/60 flex-wrap justify-center">
               <span>© {new Date().getFullYear()} VIT AP Study Hub. All rights reserved.</span>
-              <span className="hidden md:inline mx-1">•</span>
+              <span className="mx-1">•</span>
               <span className="flex items-center gap-1">
                 Made with <Heart className="w-3 h-3 text-red-400" /> for students
               </span>
             </div>
-
-            {/* Quick Actions */}
-            {!isMobile && (
-              <div className="flex items-center gap-2">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate("/privacy-policy")}
-                        className="text-white/70 hover:text-white hover:bg-white/5 rounded-lg border border-white/10"
-                      >
-                        <ShieldCheck className="mr-1 h-3 w-3" />
-                        Privacy
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>View our Privacy Policy</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate("/terms-of-service")}
-                        className="text-white/70 hover:text-white hover:bg-white/5 rounded-lg border border-white/10"
-                      >
-                        <FileText className="mr-1 h-3 w-3" />
-                        Terms
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>View our Terms of Service</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-            
-            {/* Mobile Privacy/Terms links */}
-            {isMobile && (
-              <div className="flex items-center gap-3 mt-2">
-                <button 
-                  onClick={() => navigate("/privacy-policy")} 
-                  className="text-xs text-white/60 hover:text-white"
-                >
-                  Privacy
-                </button>
-                <span className="text-white/40">•</span>
-                <button 
-                  onClick={() => navigate("/terms-of-service")} 
-                  className="text-xs text-white/60 hover:text-white"
-                >
-                  Terms
-                </button>
-              </div>
-            )}
           </div>
         </motion.div>
       </div>
