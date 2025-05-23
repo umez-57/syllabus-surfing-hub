@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PyqSearchBar } from "@/components/PyqSearchBar";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import Folder from "@/components/Folder";
-import { Hero } from "@/components/hero";
 import { motion } from "framer-motion";
+import { BeamsBackground } from "@/components/ui/beams-background";
 
 export function PyqHome() {
   const [selectedDept, setSelectedDept] = useState<string>("");
@@ -34,97 +35,98 @@ export function PyqHome() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
-      {/* Background Effects */}
-      <Hero className="absolute inset-0 -z-10" gradient blur />
-
-      {/* Animated Background Shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-3xl animate-pulse top-[-250px] left-[-200px]" />
-        <div className="absolute w-[400px] h-[400px] rounded-full bg-blue-500/20 blur-3xl animate-pulse bottom-[-200px] right-[-150px]" />
-      </div>
-
+    <BeamsBackground intensity="medium" className="min-h-screen overflow-hidden">
       <Navbar />
 
-      <main className="container mx-auto px-4 pt-36 flex-grow pb-24">
+      <main className="relative z-10 pt-20">
         {!selectedDept ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-8 md:p-12 shadow-2xl"
-          >
-            <h1 className="text-4xl font-bold mb-12 text-center bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-blue-200">
-              Select Your Department For Previous Year Questions
-            </h1>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 place-items-center">
-              {departments.map((dept, index) => (
-                <motion.div 
-                  key={dept.id} 
-                  className="flex flex-col items-center group"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Folder
-                    size={1.2}
-                    item={
-                      <div
-                        className="p-2 text-center cursor-pointer text-white"
-                        onClick={() => chooseDept(dept.id)}
-                      >
-                        <p className="font-semibold">{dept.name}</p>
-                      </div>
-                    }
-                  />
-                  <p className="mt-4 font-semibold text-white/80 group-hover:text-white transition-colors">
-                    {dept.fn}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 p-8 md:p-12 shadow-2xl"
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-              <motion.h1 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-blue-200"
-              >
-                Previous Year Questions for {departments.find((d) => d.id === selectedDept)?.fn}
-              </motion.h1>
-              
-              <motion.button
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2"
-                onClick={() => setSelectedDept("")}
-              >
-                ← Change Department
-              </motion.button>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
+          <section className="container mx-auto px-4 py-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-center max-w-7xl mx-auto"
             >
-              <PyqSearchBar department_id={selectedDept} />
+              {/* Title */}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+                className="text-4xl md:text-6xl font-bold mb-12 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-cyan-200"
+              >
+                Select Your Department For Previous Year Questions
+              </motion.h1>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 place-items-center">
+                {departments.map((dept, index) => (
+                  <motion.div 
+                    key={dept.id} 
+                    className="flex flex-col items-center group"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <Folder
+                      size={1.2}
+                      item={
+                        <div
+                          className="p-2 text-center cursor-pointer text-white"
+                          onClick={() => chooseDept(dept.id)}
+                        >
+                          <p className="font-semibold">{dept.name}</p>
+                        </div>
+                      }
+                    />
+                    <p className="mt-4 font-semibold text-white/80 group-hover:text-white transition-colors">
+                      {dept.fn}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
-          </motion.div>
+          </section>
+        ) : (
+          <section className="container mx-auto px-4 py-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-center max-w-7xl mx-auto mb-16"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <motion.h1 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-cyan-200"
+                >
+                  Previous Year Questions for {departments.find((d) => d.id === selectedDept)?.fn}
+                </motion.h1>
+                
+                <motion.button
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-2"
+                  onClick={() => setSelectedDept("")}
+                >
+                  ← Change Department
+                </motion.button>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
+                <PyqSearchBar department_id={selectedDept} />
+              </motion.div>
+            </motion.div>
+          </section>
         )}
       </main>
 
       <Footer />
-    </div>
+    </BeamsBackground>
   );
 }
