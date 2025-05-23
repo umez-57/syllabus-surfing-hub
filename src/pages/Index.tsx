@@ -1,4 +1,3 @@
-
 import React from "react"
 import { Hero } from "@/components/hero"
 import { Navbar } from "@/components/Navbar"
@@ -27,9 +26,9 @@ export default function Index() {
 
       <Navbar />
 
-      <main className="relative z-10 pt-32">
+      <main className="relative z-10 pt-20">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-8">
+        <section className="container mx-auto px-4 py-4">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -96,7 +95,6 @@ export default function Index() {
           </motion.div>
         </section>
 
-        {/* Stats Section */}
         <section className="container mx-auto px-4 py-16">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
