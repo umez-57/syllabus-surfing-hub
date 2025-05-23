@@ -1,7 +1,6 @@
-// src/components/BlurText.tsx
 
 import React, { useRef, useEffect, useState } from "react"
-import { useSprings, animated, SpringValue } from "@react-spring/web"
+import { useSprings, animated, SpringValue, config as springConfig } from "@react-spring/web"
 
 interface BlurTextProps {
   text?: string
@@ -13,7 +12,7 @@ interface BlurTextProps {
   rootMargin?: string
   animationFrom?: Record<string, any>
   animationTo?: Record<string, any>[]
-  easing?: (t: number) => number | string
+  easing?: keyof typeof springConfig | ((t: number) => number)
   onAnimationComplete?: () => void
 }
 
@@ -73,34 +72,36 @@ const BlurText: React.FC<BlurTextProps> = ({
     return () => observer.disconnect()
   }, [threshold, rootMargin])
 
+  // Fix the useSprings implementation
   const springs = useSprings(
     elements.length,
-    elements.map((_, i) => ({
-      from: animationFrom || defaultFrom,
-      to: inView
-        ? async (next) => {
-            // multi-step transitions
-            for (const step of animationTo || defaultTo) {
-              await next(step)
+    elements.map((_, i) => {
+      return {
+        from: animationFrom || defaultFrom,
+        to: inView
+          ? async (next: any) => {
+              // multi-step transitions
+              for (const step of animationTo || defaultTo) {
+                await next(step)
+              }
+              animatedCount.current += 1
+              if (animatedCount.current === elements.length && onAnimationComplete) {
+                onAnimationComplete()
+              }
             }
-            animatedCount.current += 1
-            if (animatedCount.current === elements.length && onAnimationComplete) {
-              onAnimationComplete()
-            }
-          }
-        : (animationFrom || defaultFrom),
-      delay: i * delay,
-      config: { easing },
-    }))
+          : (animationFrom || defaultFrom),
+        delay: i * delay,
+        config: typeof easing === 'string' ? springConfig[easing as keyof typeof springConfig] : { easing },
+      }
+    })
   )
 
   return (
-    // Remove "flex flex-wrap" so normal text alignment works
     <p ref={ref} className={`blur-text ${className}`}>
       {springs.map((props, index) => (
         <animated.span
           key={index}
-          style={props as { [key: string]: SpringValue<string | number> }}
+          style={props as any}
           className="inline-block transition-transform will-change-[transform,filter,opacity]"
         >
           {elements[index] === " " ? "\u00A0" : elements[index]}

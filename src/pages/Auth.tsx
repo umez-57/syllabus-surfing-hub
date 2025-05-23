@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -72,7 +73,8 @@ export default function Auth() {
 
     checkSession();
 
-    const { data: subscription } = supabase.auth.onAuthStateChange(
+    // Fix the auth state change subscription
+    const { data } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return;
 
@@ -87,7 +89,7 @@ export default function Auth() {
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe?.();
+      data?.subscription.unsubscribe();
     };
   }, [navigate, hasRedirected]);
 
@@ -218,9 +220,6 @@ export default function Auth() {
                   anchor: {
                     color: "rgb(255, 255, 255, 0.7)",
                     transition: "color 0.2s ease",
-                    "&:hover": {
-                      color: "white",
-                    },
                   },
                   label: {
                     color: "rgb(255, 255, 255, 0.7)",

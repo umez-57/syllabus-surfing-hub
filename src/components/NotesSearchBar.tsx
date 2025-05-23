@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
+
+import React, { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
