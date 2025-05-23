@@ -6,7 +6,7 @@ export interface ExtendedDatabase extends OriginalDatabase {
   public: {
     Tables: {
       // Include all original tables from the original Database type
-      ...OriginalDatabase['public']['Tables'],
+      ...OriginalDatabase['public']['Tables'];
       
       // Add missing notes table
       notes: {
