@@ -27,9 +27,9 @@ export default function Index() {
 
       <Navbar />
 
-      <main className="relative z-10 pt-24">
+      <main className="relative z-10 pt-32">
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-20">
+        <section className="container mx-auto px-4 py-8">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
