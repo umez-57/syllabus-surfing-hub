@@ -39,12 +39,34 @@ export default function Index() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-6xl md:text-8xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-cyan-200"
+              className="relative text-6xl md:text-8xl font-bold mb-10 pb-4 tracking-tight"
             >
-              VIT AP
-              <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
+              <motion.span 
+                className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-400 to-pink-300 drop-shadow-[0_10px_8px_rgba(130,40,245,0.2)]"
+                initial={{ rotateX: -90 }}
+                animate={{ rotateX: 0 }}
+                transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
+                style={{ 
+                  textShadow: "0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25)",
+                  transform: "perspective(500px)",
+                  paddingBottom: "4px"
+                }}
+              >
+                VIT AP
+              </motion.span>
+              <motion.span 
+                className="glassmorphic-text block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 mt-1"
+                initial={{ rotateX: -90 }}
+                animate={{ rotateX: 0 }}
+                transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
+                style={{ 
+                  textShadow: "0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25)",
+                  transform: "perspective(500px)",
+                  padding: "4px 0"
+                }}
+              >
                 Study Hub
-              </span>
+              </motion.span>
             </motion.h1>
 
             {/* Subtitle */}
