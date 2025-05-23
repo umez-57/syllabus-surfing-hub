@@ -8,9 +8,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Hero } from "@/components/hero";
 import { Button } from "@/components/ui/moving-border";
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Auth() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [errorMessage, setErrorMessage] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);
@@ -30,9 +32,21 @@ export default function Auth() {
         if (error) {
           console.error("Error fetching profile:", error);
           setErrorMessage("Error fetching user role. Please try again.");
+          toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "Error fetching user role. Please try again.",
+          });
           return;
         }
         setHasRedirected(true);
+        
+        toast({
+          variant: "success",
+          title: "Welcome!",
+          description: "Successfully signed in to VIT AP Study Hub.",
+        });
+
         if (profile?.role === "admin") {
           navigate("/adminpanelumez", { replace: true });
         } else {
@@ -41,6 +55,11 @@ export default function Auth() {
       } catch (err) {
         console.error("Redirection error:", err);
         setErrorMessage("Unexpected error. Please try again.");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Unexpected error occurred. Please try again.",
+        });
       } finally {
         if (isMounted) setIsInitializing(false);
       }
@@ -55,6 +74,11 @@ export default function Auth() {
         if (error) {
           console.error("Session check error:", error);
           setErrorMessage("Session check failed. Please try again.");
+          toast({
+            variant: "destructive",
+            title: "Session Error",
+            description: "Session check failed. Please try again.",
+          });
           if (isMounted) setIsInitializing(false);
           return;
         }
@@ -67,13 +91,18 @@ export default function Auth() {
       } catch (err) {
         console.error("Session check error:", err);
         setErrorMessage("Session check failed. Please try again.");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Session check failed. Please try again.",
+        });
         if (isMounted) setIsInitializing(false);
       }
     };
 
     checkSession();
 
-    // Fix the auth state change subscription
+    // Enhanced auth state change subscription with better messaging
     const { data } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return;
@@ -83,6 +112,18 @@ export default function Auth() {
         } else if (event === "SIGNED_OUT") {
           setHasRedirected(false);
           navigate("/login", { replace: true });
+        } else if (event === "SIGNED_UP") {
+          toast({
+            variant: "success",
+            title: "Account Created!",
+            description: "Please check your email for the confirmation link to complete your registration.",
+          });
+        } else if (event === "PASSWORD_RECOVERY") {
+          toast({
+            variant: "success",
+            title: "Password Reset Email Sent",
+            description: "Please check your email for the password reset link.",
+          });
         }
       }
     );
@@ -91,7 +132,7 @@ export default function Auth() {
       isMounted = false;
       data?.subscription.unsubscribe();
     };
-  }, [navigate, hasRedirected]);
+  }, [navigate, hasRedirected, toast]);
 
   if (isInitializing) {
     return (
@@ -183,6 +224,10 @@ export default function Auth() {
                       inputBorderFocus: "rgb(255, 255, 255, 0.3)",
                       inputText: "white",
                       inputPlaceholder: "rgb(255, 255, 255, 0.5)",
+                      messageText: "white",
+                      messageTextDanger: "rgb(239, 68, 68)",
+                      messageBackground: "rgb(255, 255, 255, 0.1)",
+                      messageBorder: "rgb(255, 255, 255, 0.2)",
                     },
                     space: {
                       buttonPadding: "15px 25px",
@@ -227,7 +272,12 @@ export default function Auth() {
                     marginBottom: "8px",
                   },
                   message: {
-                    color: "rgb(255, 255, 255, 0.7)",
+                    color: "white",
+                    backgroundColor: "rgb(255, 255, 255, 0.1)",
+                    border: "1px solid rgb(255, 255, 255, 0.2)",
+                    borderRadius: "8px",
+                    padding: "12px",
+                    backdropFilter: "blur(10px)",
                   },
                 },
               }}
