@@ -8,7 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 import { motion } from "framer-motion"
 import { BookOpen, Users, Download, Star, ArrowRight } from "lucide-react"
 import { BeamsBackground } from "@/components/ui/beams-background"
-import { CustomLamp } from "@/components/ui/custom-lamp"
+import { HeaderLamp } from "@/components/ui/header-lamp"
 
 export default function Index() {
   return (
@@ -31,7 +31,7 @@ export default function Index() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="mb-8"
             >
-              <CustomLamp className="h-20" />
+              <HeaderLamp className="h-16" />
             </motion.div>
 
             {/* Main Heading */}
