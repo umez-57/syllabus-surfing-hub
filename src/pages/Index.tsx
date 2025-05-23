@@ -6,8 +6,9 @@ import { Footer } from "@/components/Footer"
 import { SearchBar } from "@/components/SearchBar"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { motion } from "framer-motion"
-import { BookOpen, Users, Download, Star, ArrowRight, Sparkles } from "lucide-react"
+import { BookOpen, Users, Download, Star, ArrowRight } from "lucide-react"
 import { BeamsBackground } from "@/components/ui/beams-background"
+import { CustomLamp } from "@/components/ui/custom-lamp"
 
 export default function Index() {
   return (
@@ -23,15 +24,14 @@ export default function Index() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center max-w-7xl mx-auto"
           >
-            {/* Badge */}
+            {/* Lamp Effect */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-white/20 bg-white/5 backdrop-blur-xl"
+              className="mb-8"
             >
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-white/80">VIT-AP Study Platform 2.0</span>
+              <CustomLamp className="h-20" />
             </motion.div>
 
             {/* Main Heading */}
