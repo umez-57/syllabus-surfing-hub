@@ -58,9 +58,9 @@ export const Footer = () => {
       </div>
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 py-16">
+      <div className="relative z-10 container mx-auto px-6 py-10">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <motion.div
@@ -141,7 +141,7 @@ export const Footer = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="pt-8 border-t border-white/10"
+          className="pt-6 border-t border-white/10 pb-2"
         >
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
