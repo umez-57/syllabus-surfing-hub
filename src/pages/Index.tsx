@@ -1,4 +1,3 @@
-
 import React from "react"
 import { Hero } from "@/components/hero"
 import { Navbar } from "@/components/Navbar"
@@ -24,14 +23,14 @@ export default function Index() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center max-w-7xl mx-auto"
           >
-            {/* Lamp Effect */}
+            {/* Lamp Effect - larger container */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-8"
+              className="mb-12 h-24"
             >
-              <HeaderLamp className="h-16" />
+              <HeaderLamp className="h-24" />
             </motion.div>
 
             {/* Main Heading */}
