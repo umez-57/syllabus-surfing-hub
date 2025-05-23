@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -120,15 +121,6 @@
   .font-display {
     font-family: 'Playfair Display', serif;
   }
-
-  /* 3D Text and Glassmorphic Effects */
-  .glassmorphic-text {
-    position: relative;
-    z-index: 10;
-    text-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
-    filter: drop-shadow(0 12px 12px rgba(6, 182, 212, 0.4)) drop-shadow(0 0 20px rgba(147, 51, 234, 0.3));
-    animation: textGlow 4s ease-in-out infinite alternate;
-  }
 }
 
 /* Components layer: custom component styles */
@@ -205,19 +197,6 @@
   }
   50% {
     box-shadow: 0 0 40px rgba(255, 230, 0, 0.8);
-  }
-}
-
-/* Text glow animation */
-@keyframes textGlow {
-  0% {
-    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.4)) drop-shadow(0 0 16px rgba(147, 51, 234, 0.3));
-  }
-  50% {
-    filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.6)) drop-shadow(0 0 24px rgba(147, 51, 234, 0.5)) drop-shadow(0 0 32px rgba(236, 72, 153, 0.3));
-  }
-  100% {
-    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.4)) drop-shadow(0 0 16px rgba(147, 51, 234, 0.3));
   }
 }
 

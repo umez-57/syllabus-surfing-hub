@@ -1,3 +1,4 @@
+
 import React from "react"
 import { Hero } from "@/components/hero"
 import { Navbar } from "@/components/Navbar"
@@ -27,10 +28,10 @@ export default function Index() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-purple-400/30 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 backdrop-blur-xl"
+              className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-white/20 bg-white/5 backdrop-blur-xl"
             >
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm bg-gradient-to-r from-purple-300 to-cyan-300 bg-clip-text text-transparent font-medium">VIT-AP Study Platform 2.0</span>
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className="text-sm text-white/80">VIT-AP Study Platform 2.0</span>
             </motion.div>
 
             {/* Main Heading */}
@@ -38,34 +39,12 @@ export default function Index() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="relative text-6xl md:text-8xl font-bold mb-10 pb-4 tracking-tight"
+              className="text-6xl md:text-8xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-cyan-200"
             >
-              <motion.span 
-                className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-purple-300 to-pink-300 drop-shadow-[0_10px_8px_rgba(130,40,245,0.3)]"
-                initial={{ rotateX: -90 }}
-                animate={{ rotateX: 0 }}
-                transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
-                style={{ 
-                  textShadow: "0 1px 0 rgba(147, 51, 234, 0.3), 0 2px 0 rgba(147, 51, 234, 0.25), 0 3px 0 rgba(147, 51, 234, 0.2), 0 4px 0 rgba(147, 51, 234, 0.15), 0 5px 0 rgba(147, 51, 234, 0.1), 0 6px 1px rgba(130,40,245,.2), 0 0 8px rgba(130,40,245,.3), 0 2px 6px rgba(130,40,245,.4), 0 6px 12px rgba(130,40,245,.3), 0 8px 16px rgba(130,40,245,.25)",
-                  transform: "perspective(500px)",
-                  paddingBottom: "4px"
-                }}
-              >
-                VIT AP
-              </motion.span>
-              <motion.span 
-                className="glassmorphic-text block bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300 mt-1"
-                initial={{ rotateX: -90 }}
-                animate={{ rotateX: 0 }}
-                transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
-                style={{ 
-                  textShadow: "0 1px 0 rgba(6, 182, 212, 0.3), 0 2px 0 rgba(6, 182, 212, 0.25), 0 3px 0 rgba(6, 182, 212, 0.2), 0 4px 0 rgba(6, 182, 212, 0.15), 0 5px 0 rgba(6, 182, 212, 0.1), 0 6px 1px rgba(6,182,212,.2), 0 0 8px rgba(6,182,212,.3), 0 2px 6px rgba(6,182,212,.4), 0 6px 12px rgba(6,182,212,.3), 0 8px 16px rgba(6,182,212,.25)",
-                  transform: "perspective(500px)",
-                  padding: "4px 0"
-                }}
-              >
+              VIT AP
+              <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
                 Study Hub
-              </motion.span>
+              </span>
             </motion.h1>
 
             {/* Subtitle */}
@@ -73,7 +52,7 @@ export default function Index() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="text-xl md:text-2xl bg-gradient-to-r from-purple-200 via-cyan-200 to-pink-200 bg-clip-text text-transparent mb-4 max-w-4xl mx-auto font-medium"
+              className="text-xl md:text-2xl text-white/70 mb-4 max-w-4xl mx-auto"
             >
               Your Gateway to Academic Excellence
             </motion.p>
@@ -82,7 +61,7 @@ export default function Index() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
-              className="text-lg bg-gradient-to-r from-purple-300/70 to-cyan-300/70 bg-clip-text text-transparent mb-12"
+              className="text-lg text-white/50 mb-12"
             >
               Featuring SCOPE syllabus • More departments coming soon
             </motion.p>
