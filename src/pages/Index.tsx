@@ -369,22 +369,65 @@ export default function Index() {
               ))}
             </div>
             
-            {/* Bottom CTA */}
+            {/* Bottom CTA - Replaced with Tagline */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.8, duration: 0.8 }}
-              className="text-center mt-20"
+              className="text-center mt-24 perspective-1000"
             >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 cursor-pointer"
-              >
-                <Sparkles className="w-5 h-5" />
-                <span>Start Your Academic Journey</span>
-                <ArrowRight className="w-5 h-5" />
-              </motion.div>
+              <div className="relative p-1">
+                {/* Background glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/30 via-pink-500/30 to-cyan-500/30 blur-2xl opacity-50 rounded-full"></div>
+                
+                {/* Animated tagline */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, rotateX: -10 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1, 
+                    rotateX: 0,
+                    transition: { 
+                      duration: 0.8,
+                      delay: 3.0,
+                      ease: "easeOut" 
+                    } 
+                  }}
+                  className="relative"
+                >
+                  <div className="mb-2 text-sm font-medium tracking-wider text-white/60 uppercase">
+                    <Sparkles className="inline-block w-4 h-4 mr-2 text-purple-400" />
+                    Empowering Students
+                  </div>
+                  
+                  <h3 className="text-4xl md:text-5xl font-bold font-display tracking-tight mb-4">
+                    <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500 animate-pulse">
+                      Elevate
+                    </span>{" "}
+                    <span className="text-white">Your</span>{" "}
+                    <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse">
+                      Academic
+                    </span>{" "}
+                    <span className="text-white">Journey</span>
+                  </h3>
+                  
+                  <motion.div 
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ delay: 3.2, duration: 1.2, ease: "easeInOut" }}
+                    className="h-px max-w-lg mx-auto bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                  />
+                  
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 3.4, duration: 0.8 }}
+                    className="mt-4 text-lg text-white/70 max-w-2xl mx-auto"
+                  >
+                    Where knowledge meets innovation and student success becomes inevitable
+                  </motion.p>
+                </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         </section>
