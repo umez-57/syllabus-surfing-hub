@@ -15,7 +15,6 @@ import {
   Archive,
   User,
   LogOut,
-  ChevronDown,
 } from "lucide-react";
 
 /* UI primitives */
@@ -84,34 +83,6 @@ export const Navbar = () => {
       duration: 4000,
     });
 
-  const menuItems = [
-    {
-      label: "Mock Course Registration",
-      icon: BookOpen,
-      action: upcomingToast,
-      tooltip: "Coming soon!",
-      disabled: true
-    },
-    {
-      label: "Timetable Scheduler",
-      icon: Calendar,
-      action: () => window.open("https://timetable.vitaphub.in/", "_blank"),
-      tooltip: "Manage your Timetable"
-    },
-    {
-      label: "Notes",
-      icon: StickyNote,
-      action: () => navigate("/notes"),
-      tooltip: "View Notes"
-    },
-    {
-      label: "PYQ",
-      icon: Archive,
-      action: () => navigate("/pyq"),
-      tooltip: "Previous Year Questions"
-    }
-  ];
-
   return (
     <motion.nav 
       initial={{ y: -100 }}
@@ -141,36 +112,93 @@ export const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-2">
             <TooltipProvider>
-              {menuItems.map((item, index) => (
-                <Tooltip key={item.label}>
-                  <TooltipTrigger asChild>
-                    <motion.div
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 * index, duration: 0.5 }}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.5 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 backdrop-blur-xl rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 px-4 py-2 opacity-60"
+                      onClick={upcomingToast}
                     >
-                      <Button
-                        variant="ghost"
-                        className={`
-                          text-white hover:bg-white/10 
-                          backdrop-blur-xl rounded-xl
-                          border border-white/10 hover:border-white/20
-                          transition-all duration-300 hover:scale-105
-                          px-4 py-2
-                          ${item.disabled ? 'opacity-60' : ''}
-                        `}
-                        onClick={item.action}
-                      >
-                        <item.icon className="mr-2 w-4 h-4" />
-                        <span className="text-sm font-medium">{item.label}</span>
-                      </Button>
-                    </motion.div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{item.tooltip}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+                      <BookOpen className="mr-2 w-4 h-4" />
+                      <span className="text-sm font-medium">Mock Course Registration</span>
+                    </Button>
+                  </motion.div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Coming soon!</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 backdrop-blur-xl rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 px-4 py-2"
+                      onClick={() => window.open("https://timetable.vitaphub.in/", "_blank")}
+                    >
+                      <Calendar className="mr-2 w-4 h-4" />
+                      <span className="text-sm font-medium">Timetable Scheduler</span>
+                    </Button>
+                  </motion.div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Manage your Timetable</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 backdrop-blur-xl rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 px-4 py-2"
+                      onClick={() => navigate("/notes")}
+                    >
+                      <StickyNote className="mr-2 w-4 h-4" />
+                      <span className="text-sm font-medium">Notes</span>
+                    </Button>
+                  </motion.div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>View Notes</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 backdrop-blur-xl rounded-xl border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 px-4 py-2"
+                      onClick={() => navigate("/pyq")}
+                    >
+                      <Archive className="mr-2 w-4 h-4" />
+                      <span className="text-sm font-medium">PYQ</span>
+                    </Button>
+                  </motion.div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Previous Year Questions</p>
+                </TooltipContent>
+              </Tooltip>
             </TooltipProvider>
 
             {/* Auth Section */}
@@ -262,35 +290,83 @@ export const Navbar = () => {
             >
               <div className="bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/10 p-4">
                 <div className="space-y-3">
-                  {menuItems.map((item, index) => (
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 * index }}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 w-full justify-start rounded-xl opacity-60"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        upcomingToast();
+                      }}
                     >
-                      <Button
-                        variant="ghost"
-                        className={`
-                          text-white hover:bg-white/10 w-full justify-start rounded-xl
-                          ${item.disabled ? 'opacity-60' : ''}
-                        `}
-                        onClick={() => {
-                          setIsMobileMenuOpen(false);
-                          item.action();
-                        }}
-                      >
-                        <item.icon className="mr-3 w-4 h-4" />
-                        {item.label}
-                      </Button>
-                    </motion.div>
-                  ))}
+                      <BookOpen className="mr-3 w-4 h-4" />
+                      Mock Course Registration
+                    </Button>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 w-full justify-start rounded-xl"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        window.open("https://timetable.vitaphub.in/", "_blank");
+                      }}
+                    >
+                      <Calendar className="mr-3 w-4 h-4" />
+                      Timetable Scheduler
+                    </Button>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 w-full justify-start rounded-xl"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        navigate("/notes");
+                      }}
+                    >
+                      <StickyNote className="mr-3 w-4 h-4" />
+                      Notes
+                    </Button>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="text-white hover:bg-white/10 w-full justify-start rounded-xl"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        navigate("/pyq");
+                      }}
+                    >
+                      <Archive className="mr-3 w-4 h-4" />
+                      PYQ
+                    </Button>
+                  </motion.div>
                   
                   {/* Mobile Auth */}
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
+                    transition={{ delay: 0.5 }}
                     className="pt-3 border-t border-white/10"
                   >
                     {isAuthenticated ? (

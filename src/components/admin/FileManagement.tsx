@@ -1,123 +1,222 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { FileUploadForm } from "./FileUploadForm";
-import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, Download, Upload, RefreshCw } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { FileUploadForm } from "./FileUploadForm";
 
-const FileManagement = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const queryClient = useQueryClient();
+interface SyllabusFile {
+  id: string;
+  title: string;
+  course_code: string;
+  file_name: string;
+  file_path: string;
+  type?: string;
+  credits?: number;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+  departments?: {
+    name: string;
+  };
+}
 
-  const { data: files, isLoading, refetch } = useQuery({
-    queryKey: ["files"],
-    queryFn: async () => {
-      const { data, error } = await supabase.storage.from("syllabi").list();
+export const FileManagement = () => {
+  const [files, setFiles] = useState<SyllabusFile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showUploadForm, setShowUploadForm] = useState(false);
+
+  const fetchFiles = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("syllabi")
+        .select(`
+          *,
+          departments (
+            name
+          )
+        `)
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const handleDelete = async (filename: string) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this file?"
-    );
-    if (!confirmDelete) return;
-
-    try {
-      const { error } = await supabase.storage
-        .from("syllabi")
-        .remove([filename]);
-
-      if (error) {
-        toast.error(`Error deleting file: ${error.message}`);
-      } else {
-        toast.success("File deleted successfully!");
-        await queryClient.invalidateQueries({ queryKey: ["files"] });
-        refetch();
-      }
-    } catch (error: any) {
-      toast.error(`Error deleting file: ${error.message}`);
-    }
-  };
-
-  const handleUpload = async (file: File, metadata: any) => {
-    setUploading(true);
-    try {
-      const timestamp = new Date().getTime();
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${metadata.code}_${timestamp}.${fileExt}`;
-      const filePath = `files/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("syllabi")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { error: insertError } = await supabase
-        .from("syllabi_data")
-        .insert([
-          {
-            title: metadata.title,
-            code: metadata.code,
-            description: metadata.description,
-            credits: metadata.credits,
-            file_path: filePath,
-            file_name: fileName,
-          },
-        ]);
-
-      if (insertError) {
-        throw insertError;
-      }
-
-      toast.success("File uploaded successfully!");
-    } catch (error: any) {
-      toast.error(`Error uploading file: ${error.message}`);
+      setFiles(data || []);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch files",
+        variant: "destructive",
+      });
     } finally {
-      setUploading(false);
-      await queryClient.invalidateQueries({ queryKey: ["files"] });
-      refetch();
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchFiles();
+  }, []);
+
+  const deleteFile = async (id: string, filePath: string) => {
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("syllabi")
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from("syllabi")
+        .delete()
+        .eq("id", id);
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "Success",
+        description: "File deleted successfully",
+      });
+
+      fetchFiles();
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete file",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadFile = async (filePath: string, fileName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("syllabi")
+        .download(filePath);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download file",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUploadSuccess = () => {
+    setShowUploadForm(false);
+    fetchFiles();
+  };
+
+  if (loading) {
+    return <div className="p-8">Loading...</div>;
+  }
 
   return (
-    <div>
-      <FileUploadForm onUpload={handleUpload} />
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">Uploaded Files</h2>
-      {isLoading ? (
-        <p>Loading files...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {files &&
-            files.map((file) => (
-              <div
-                key={file.name}
-                className="bg-white rounded-md shadow-sm p-4 flex items-center justify-between"
-              >
-                <span>{file.name}</span>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleDelete(file.name)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">File Management</h2>
+        <div className="flex gap-2">
+          <Button onClick={fetchFiles} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          <Button onClick={() => setShowUploadForm(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload File
+          </Button>
         </div>
+      </div>
+
+      {showUploadForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Upload New File</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FileUploadForm
+              onSuccess={handleUploadSuccess}
+              onCancel={() => setShowUploadForm(false)}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4">
+        {files.map((file) => (
+          <Card key={file.id}>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="font-semibold">{file.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {file.course_code}
+                  </p>
+                  {file.description && (
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {file.description}
+                    </p>
+                  )}
+                  <div className="flex gap-2 flex-wrap">
+                    {file.departments?.name && (
+                      <Badge variant="secondary">{file.departments.name}</Badge>
+                    )}
+                    {file.type && (
+                      <Badge variant="outline">{file.type}</Badge>
+                    )}
+                    {file.credits && (
+                      <Badge variant="outline">{file.credits} credits</Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Uploaded: {new Date(file.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadFile(file.file_path, file.file_name)}
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => deleteFile(file.id, file.file_path)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {files.length === 0 && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-muted-foreground">No files uploaded yet.</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 };
-
-export { FileManagement };
