@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -112,12 +111,6 @@ export default function Auth() {
         } else if (event === "SIGNED_OUT") {
           setHasRedirected(false);
           navigate("/login", { replace: true });
-        } else if (event === "SIGNED_UP") {
-          toast({
-            variant: "success",
-            title: "Account Created!",
-            description: "Please check your email for the confirmation link to complete your registration.",
-          });
         } else if (event === "PASSWORD_RECOVERY") {
           toast({
             variant: "success",
