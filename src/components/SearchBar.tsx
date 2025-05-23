@@ -1,3 +1,4 @@
+
 // src/components/SearchBar.tsx
 import React, { useState, useEffect, useMemo } from "react";
 import { Search as SearchIcon } from "lucide-react";
@@ -60,12 +61,12 @@ export const SearchBar: React.FC = () => {
 
   return (
     <div className="w-full space-y-8">
-      {/* Search box */}
-      <div className="relative max-w-2xl mx-auto">
+      {/* Search box - Full width with proper container */}
+      <div className="relative w-full max-w-4xl mx-auto">
         <Input
           type="search"
           placeholder="Search with Course Code or Subject Name"
-          className="pl-12 pr-4 py-6 text-lg rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-xl text-white placeholder:text-gray-400 focus:border-white/20 transition-all duration-300"
+          className="w-full pl-12 pr-4 py-6 text-lg rounded-xl border-2 border-white/10 bg-white/5 backdrop-blur-xl text-white placeholder:text-gray-400 focus:border-white/20 transition-all duration-300"
           value={text}
           onChange={(e) => {
             setText(e.target.value);
@@ -78,33 +79,35 @@ export const SearchBar: React.FC = () => {
         />
       </div>
 
-      {/* Results */}
+      {/* Results - Full width grid */}
       {isLoading ? (
         <div className="flex justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {slice.length ? (
-              slice.map((s) => (
-                <SyllabusCard
-                  key={s.id}
-                  id={s.id}
-                  title={s.title}
-                  code={s.course_code}
-                  description={s.description ?? "No description available"}
-                  credits={s.credits ?? 0}
-                  filePath={s.file_path}
-                  fileName={s.file_name ?? "syllabus.pdf"}
-                  highlight={s.id === sharedId}
-                />
-              ))
-            ) : (
-              <div className="col-span-full text-center text-gray-400 backdrop-blur-xl bg-white/5 rounded-xl border border-white/10 p-8">
-                {text ? "No syllabi match your search." : "Start typing to search."}
-              </div>
-            )}
+          <div className="w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+              {slice.length ? (
+                slice.map((s) => (
+                  <SyllabusCard
+                    key={s.id}
+                    id={s.id}
+                    title={s.title}
+                    code={s.course_code}
+                    description={s.description ?? "No description available"}
+                    credits={s.credits ?? 0}
+                    filePath={s.file_path}
+                    fileName={s.file_name ?? "syllabus.pdf"}
+                    highlight={s.id === sharedId}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center text-gray-400 backdrop-blur-xl bg-white/5 rounded-xl border border-white/10 p-8">
+                  {text ? "No syllabi match your search." : "Start typing to search."}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Message instead of Load More button */}
