@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Eye, Share2, X, FileText, Calendar, User, GraduationCap, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -176,8 +175,8 @@ export function SyllabusCard({
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            {/* Action Buttons - Updated with consistent glassmorphic design */}
+            <div className="flex flex-row gap-3">
               <motion.button
                 onClick={handleView}
                 disabled={loadingView}
@@ -187,26 +186,26 @@ export function SyllabusCard({
                   flex-1 flex items-center justify-center gap-3
                   px-6 py-4
                   text-sm font-semibold
-                  bg-gradient-to-r from-purple-500 to-cyan-500
-                  hover:from-purple-600 hover:to-cyan-600
+                  bg-white/5 backdrop-blur-xl
+                  border border-white/20
+                  hover:bg-white/10 hover:border-white/30
                   text-white rounded-2xl
                   transition-all duration-300
-                  hover:shadow-lg hover:shadow-purple-500/25
+                  hover:shadow-lg hover:shadow-indigo-500/20
                   disabled:opacity-50 disabled:cursor-not-allowed
                   group/btn relative overflow-hidden
                 "
               >
-                {/* Button Background Animation */}
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                {/* Button Animated Highlight */}
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-blue-500/10 to-teal-500/10 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
                 
                 <div className="relative z-10 flex items-center gap-3">
                   {loadingView ? (
                     <ClipLoader size={18} color="#fff" />
                   ) : (
                     <>
-                      <Eye className="w-5 h-5 group-hover/btn:scale-110 transition-transform" />
-                      <span className="hidden sm:inline">View Syllabus</span>
-                      <span className="sm:hidden">View</span>
+                      <Eye className="w-5 h-5 group-hover/btn:scale-110 transition-transform text-indigo-400" />
+                      <span>View Syllabus</span>
                     </>
                   )}
                 </div>
@@ -217,27 +216,31 @@ export function SyllabusCard({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="
-                  flex items-center justify-center gap-2
-                  px-6 py-4 sm:px-4
+                  flex-1 flex items-center justify-center gap-3
+                  px-6 py-4
                   text-sm font-semibold
+                  bg-white/5 backdrop-blur-xl
                   border border-white/20
-                  hover:border-white/40
+                  hover:bg-white/10 hover:border-white/30
                   text-white rounded-2xl
-                  backdrop-blur-xl
                   transition-all duration-300
-                  hover:bg-white/10
+                  hover:shadow-lg hover:shadow-indigo-500/20
                   group/share relative overflow-hidden
                 "
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-white/10 opacity-0 group-hover/share:opacity-100 transition-opacity duration-300" />
-                <Share2 className="w-5 h-5 group-hover/share:scale-110 transition-transform relative z-10" />
-                <span className="sm:hidden relative z-10">Share</span>
+                {/* Button Animated Highlight */}
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-blue-500/10 to-teal-500/10 opacity-0 group-hover/share:opacity-100 transition-opacity duration-300" />
+                
+                <div className="relative z-10 flex items-center gap-3">
+                  <Share2 className="w-5 h-5 group-hover/share:scale-110 transition-transform text-indigo-400" />
+                  <span>Share Syllabus</span>
+                </div>
               </motion.button>
             </div>
           </div>
 
           {/* Decorative Elements */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 opacity-60" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-teal-500 opacity-60" />
         </div>
       </motion.div>
 
