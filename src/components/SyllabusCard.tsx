@@ -137,8 +137,8 @@ export function SyllabusCard({
                   </span>
                 </motion.div>
 
-                {/* Title */}
-                <h3 className="text-xl sm:text-2xl font-bold text-white line-clamp-2 mb-4 leading-tight">
+                {/* Title - reduced font size by 1.5px */}
+                <h3 className="text-lg sm:text-xl font-bold text-white line-clamp-2 mb-4 leading-tight">
                   {title}
                 </h3>
               </div>
@@ -150,9 +150,9 @@ export function SyllabusCard({
               />
             </div>
 
-            {/* Description */}
-            <div className="flex-grow mb-8">
-              <p className="text-white/70 text-sm sm:text-base line-clamp-3 mb-6 leading-relaxed">
+            {/* Description - moved up by 10px and reduced text size by 2px */}
+            <div className="flex-grow mb-8 -mt-[10px]">
+              <p className="text-white/70 text-xs sm:text-sm line-clamp-3 mb-6 leading-relaxed">
                 {description}
               </p>
               
