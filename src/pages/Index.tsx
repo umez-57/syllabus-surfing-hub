@@ -1,4 +1,3 @@
-
 import React from "react"
 import { Hero } from "@/components/hero"
 import { Navbar } from "@/components/Navbar"
@@ -83,37 +82,126 @@ export default function Index() {
           </motion.div>
         </section>
 
-        {/* Stats Section */}
-        <section className="container mx-auto px-4 py-16">
+        {/* Stats Section - Revamped */}
+        <section className="container mx-auto px-4 py-20 relative">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+            <div className="absolute top-0 left-10 w-64 h-64 bg-purple-500/10 rounded-full mix-blend-screen filter blur-3xl"></div>
+            <div className="absolute bottom-10 right-10 w-80 h-80 bg-cyan-500/10 rounded-full mix-blend-screen filter blur-3xl"></div>
+          </div>
+          
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto"
+            className="relative z-10"
           >
-            {[
-              { icon: BookOpen, label: "Syllabi", value: "500+", color: "from-blue-500 to-cyan-500" },
-              { icon: Users, label: "Students", value: "10K+", color: "from-purple-500 to-pink-500" },
-              { icon: Download, label: "Downloads", value: "50K+", color: "from-green-500 to-emerald-500" },
-              { icon: Star, label: "Rating", value: "4.9", color: "from-yellow-500 to-orange-500" }
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.4 + index * 0.1, duration: 0.6 }}
-                className="relative group"
+            {/* Section Header */}
+            <div className="text-center mb-14">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.3, duration: 0.6 }}
+                className="mb-4 inline-block"
               >
-                <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-2xl blur-xl" />
-                <div className="relative p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl text-center hover:border-white/20 transition-all duration-300">
-                  <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${stat.color} mb-3`}>
-                    <stat.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                  <div className="text-sm text-white/60">{stat.label}</div>
+                <div className="py-1 px-3 rounded-full bg-white/5 border border-white/20 backdrop-blur-sm text-sm font-medium text-white/80">
+                  Our Impact
                 </div>
               </motion.div>
-            ))}
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.7 }}
+                className="text-4xl md:text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-cyan-200"
+              >
+                The Numbers Speak
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5, duration: 0.7 }}
+                className="text-white/60 max-w-xl mx-auto"
+              >
+                Growing consistently with the academic needs of VIT-AP students
+              </motion.p>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
+              {[
+                { icon: BookOpen, label: "Syllabi", value: "500+", color: "from-blue-600 to-cyan-600" },
+                { icon: Users, label: "Students", value: "10K+", color: "from-violet-600 to-purple-600" },
+                { icon: Download, label: "Downloads", value: "50K+", color: "from-green-600 to-emerald-600" },
+                { icon: Star, label: "Rating", value: "4.9", color: "from-amber-500 to-orange-600" }
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ 
+                    delay: 1.6 + index * 0.15, 
+                    duration: 0.6,
+                    type: "spring",
+                    stiffness: 100 
+                  }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    transition: { duration: 0.2 }
+                  }}
+                  className="group"
+                >
+                  <div className="h-full perspective-1000">
+                    <div className="relative p-6 rounded-3xl border border-white/10 bg-black/30 backdrop-blur-xl text-center hover:border-white/20 transition-all duration-300 h-full flex flex-col justify-center">
+                      {/* Gradient overlay */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-3xl`}></div>
+                      
+                      {/* 3D rotation effect on hover */}
+                      <motion.div 
+                        whileHover={{ 
+                          rotateX: 5,
+                          rotateY: 5,
+                          transition: { duration: 0.2 }
+                        }}
+                        className="relative z-10 flex flex-col items-center"
+                      >
+                        {/* Icon container with pulsing effect */}
+                        <div className={`relative mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                          <div className={`absolute inset-0 rounded-xl bg-gradient-to-r ${stat.color} opacity-20 blur-lg group-hover:opacity-40 group-hover:scale-125 transition-all duration-700`}></div>
+                          <div className={`relative inline-flex p-4 rounded-xl bg-gradient-to-br ${stat.color}`}>
+                            <stat.icon className="w-7 h-7 text-white" />
+                          </div>
+                        </div>
+                        
+                        {/* Value with counter-like animation */}
+                        <div className="text-3xl font-bold text-white mb-1 flex items-center justify-center">
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 2.0 + index * 0.15, duration: 0.5 }}
+                          >
+                            {stat.value}
+                          </motion.span>
+                          
+                          <motion.span
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 2.2 + index * 0.15, duration: 0.3, type: "spring" }}
+                            className="ml-1 text-base font-normal opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          >
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">+</span>
+                          </motion.span>
+                        </div>
+                        
+                        {/* Label */}
+                        <div className="text-sm text-white/70 group-hover:text-white/90 transition-colors duration-300 font-medium">
+                          {stat.label}
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         </section>
 
