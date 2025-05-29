@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -7,9 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Hero } from "@/components/hero";
 import { Button } from "@/components/ui/moving-border";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, AlertCircle } from "lucide-react";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -17,7 +15,6 @@ export default function Auth() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);
-  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -104,7 +101,7 @@ export default function Auth() {
 
     checkSession();
 
-    // Enhanced auth state change subscription
+    // Enhanced auth state change subscription with better messaging
     const { data } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return;
@@ -124,34 +121,9 @@ export default function Auth() {
       }
     );
 
-    // Add form submission listener to detect signup attempts
-    const handleFormSubmission = (event: Event) => {
-      const target = event.target as HTMLElement;
-      const form = target.closest('form');
-      if (form) {
-        const submitButton = form.querySelector('button[type="submit"]');
-        if (submitButton && submitButton.textContent?.toLowerCase().includes('sign up')) {
-          // Show confirmation message after a short delay to allow form processing
-          setTimeout(() => {
-            if (isMounted) {
-              setShowEmailConfirmation(true);
-              // Hide the message after 15 seconds
-              setTimeout(() => {
-                if (isMounted) setShowEmailConfirmation(false);
-              }, 15000);
-            }
-          }, 1000);
-        }
-      }
-    };
-
-    // Listen for clicks on the auth form
-    document.addEventListener('click', handleFormSubmission);
-
     return () => {
       isMounted = false;
       data?.subscription.unsubscribe();
-      document.removeEventListener('click', handleFormSubmission);
     };
   }, [navigate, hasRedirected, toast]);
 
@@ -203,74 +175,6 @@ export default function Auth() {
             Your Gateway to Academic Excellence
           </motion.p>
         </div>
-
-        {/* Email Confirmation Message - New Orange/Amber Theme */}
-        <AnimatePresence>
-          {showEmailConfirmation && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: -20 }}
-              transition={{ 
-                duration: 0.6, 
-                ease: "easeOut",
-                exit: { duration: 0.4 }
-              }}
-              className="mb-6"
-            >
-              <div className="backdrop-blur-xl bg-gradient-to-r from-orange-500/25 via-amber-500/25 to-yellow-500/25 rounded-2xl border border-orange-400/40 shadow-[0_8px_32px_0_rgba(251,146,60,0.3)] p-6 relative overflow-hidden">
-                {/* Animated background glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-400/10 via-amber-400/10 to-yellow-400/10 animate-pulse" />
-                
-                <div className="flex items-start space-x-4 relative z-10">
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 10, -10, 0]
-                    }}
-                    transition={{ 
-                      duration: 2.5,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                    className="flex-shrink-0"
-                  >
-                    <Mail className="h-7 w-7 text-orange-300" />
-                  </motion.div>
-                  <div className="flex-1">
-                    <motion.h3
-                      initial={{ opacity: 0, x: -15 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2, duration: 0.5 }}
-                      className="text-xl font-bold text-orange-200 mb-3"
-                    >
-                      📧 Check Your Email!
-                    </motion.h3>
-                    <motion.p
-                      initial={{ opacity: 0, x: -15 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3, duration: 0.5 }}
-                      className="text-white font-medium text-base mb-4 leading-relaxed"
-                    >
-                      Check your email for the confirmation link
-                    </motion.p>
-                    <motion.div
-                      initial={{ opacity: 0, x: -15 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4, duration: 0.5 }}
-                      className="flex items-center space-x-2 text-yellow-200 bg-orange-500/20 rounded-lg p-3"
-                    >
-                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                      <p className="text-sm">
-                        💡 Don't see it? Check your spam/junk folder!
-                      </p>
-                    </motion.div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Auth Container */}
         <motion.div
