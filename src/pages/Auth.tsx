@@ -104,7 +104,7 @@ export default function Auth() {
 
     checkSession();
 
-    // Enhanced auth state change subscription with better messaging
+    // Enhanced auth state change subscription
     const { data } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return;
@@ -114,12 +114,6 @@ export default function Auth() {
         } else if (event === "SIGNED_OUT") {
           setHasRedirected(false);
           navigate("/login", { replace: true });
-        } else if (event === "SIGNED_UP") {
-          setShowEmailConfirmation(true);
-          // Hide the message after 10 seconds
-          setTimeout(() => {
-            if (isMounted) setShowEmailConfirmation(false);
-          }, 10000);
         } else if (event === "PASSWORD_RECOVERY") {
           toast({
             variant: "success",
@@ -130,9 +124,34 @@ export default function Auth() {
       }
     );
 
+    // Add form submission listener to detect signup attempts
+    const handleFormSubmission = (event: Event) => {
+      const target = event.target as HTMLElement;
+      const form = target.closest('form');
+      if (form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton && submitButton.textContent?.toLowerCase().includes('sign up')) {
+          // Show confirmation message after a short delay to allow form processing
+          setTimeout(() => {
+            if (isMounted) {
+              setShowEmailConfirmation(true);
+              // Hide the message after 15 seconds
+              setTimeout(() => {
+                if (isMounted) setShowEmailConfirmation(false);
+              }, 15000);
+            }
+          }, 1000);
+        }
+      }
+    };
+
+    // Listen for clicks on the auth form
+    document.addEventListener('click', handleFormSubmission);
+
     return () => {
       isMounted = false;
       data?.subscription.unsubscribe();
+      document.removeEventListener('click', handleFormSubmission);
     };
   }, [navigate, hasRedirected, toast]);
 
@@ -185,7 +204,7 @@ export default function Auth() {
           </motion.p>
         </div>
 
-        {/* Email Confirmation Message */}
+        {/* Email Confirmation Message - New Orange/Amber Theme */}
         <AnimatePresence>
           {showEmailConfirmation && (
             <motion.div
@@ -193,54 +212,57 @@ export default function Auth() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: -20 }}
               transition={{ 
-                duration: 0.5, 
+                duration: 0.6, 
                 ease: "easeOut",
-                exit: { duration: 0.3 }
+                exit: { duration: 0.4 }
               }}
               className="mb-6"
             >
-              <div className="backdrop-blur-xl bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-teal-500/20 rounded-2xl border border-green-400/30 shadow-[0_8px_32px_0_rgba(34,197,94,0.2)] p-6">
-                <div className="flex items-start space-x-4">
+              <div className="backdrop-blur-xl bg-gradient-to-r from-orange-500/25 via-amber-500/25 to-yellow-500/25 rounded-2xl border border-orange-400/40 shadow-[0_8px_32px_0_rgba(251,146,60,0.3)] p-6 relative overflow-hidden">
+                {/* Animated background glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400/10 via-amber-400/10 to-yellow-400/10 animate-pulse" />
+                
+                <div className="flex items-start space-x-4 relative z-10">
                   <motion.div
                     animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 10, -10, 0]
                     }}
                     transition={{ 
-                      duration: 2,
+                      duration: 2.5,
                       repeat: Infinity,
                       repeatType: "reverse"
                     }}
                     className="flex-shrink-0"
                   >
-                    <Mail className="h-6 w-6 text-green-400" />
+                    <Mail className="h-7 w-7 text-orange-300" />
                   </motion.div>
                   <div className="flex-1">
                     <motion.h3
-                      initial={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, x: -15 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2, duration: 0.4 }}
-                      className="text-lg font-semibold text-green-300 mb-2"
+                      transition={{ delay: 0.2, duration: 0.5 }}
+                      className="text-xl font-bold text-orange-200 mb-3"
                     >
-                      Check Your Email!
+                      📧 Check Your Email!
                     </motion.h3>
                     <motion.p
-                      initial={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, x: -15 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3, duration: 0.4 }}
-                      className="text-white/90 text-sm mb-3"
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                      className="text-white font-medium text-base mb-4 leading-relaxed"
                     >
-                      We've sent a confirmation link to your email address. Click the link to complete your registration.
+                      Check your email for the confirmation link
                     </motion.p>
                     <motion.div
-                      initial={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, x: -15 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4, duration: 0.4 }}
-                      className="flex items-center space-x-2 text-yellow-300"
+                      transition={{ delay: 0.4, duration: 0.5 }}
+                      className="flex items-center space-x-2 text-yellow-200 bg-orange-500/20 rounded-lg p-3"
                     >
-                      <AlertCircle className="h-4 w-4" />
-                      <p className="text-xs">
-                        Don't see the email? Check your spam/junk folder or wait a few minutes.
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <p className="text-sm">
+                        💡 Don't see it? Check your spam/junk folder!
                       </p>
                     </motion.div>
                   </div>
