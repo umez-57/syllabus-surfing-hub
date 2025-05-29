@@ -1,4 +1,5 @@
 
+
 import { useEffect, useState } from "react";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -114,12 +115,6 @@ export default function Auth() {
         } else if (event === "SIGNED_OUT") {
           setHasRedirected(false);
           navigate("/login", { replace: true });
-        } else if (event === "SIGNED_UP") {
-          setShowEmailConfirmation(true);
-          // Hide the message after 10 seconds
-          setTimeout(() => {
-            if (isMounted) setShowEmailConfirmation(false);
-          }, 10000);
         } else if (event === "PASSWORD_RECOVERY") {
           toast({
             variant: "success",
@@ -184,71 +179,6 @@ export default function Auth() {
             Your Gateway to Academic Excellence
           </motion.p>
         </div>
-
-        {/* Email Confirmation Message */}
-        <AnimatePresence>
-          {showEmailConfirmation && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: -20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: -20 }}
-              transition={{ 
-                duration: 0.5, 
-                ease: "easeOut",
-                exit: { duration: 0.3 }
-              }}
-              className="mb-6"
-            >
-              <div className="backdrop-blur-xl bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-teal-500/20 rounded-2xl border border-green-400/30 shadow-[0_8px_32px_0_rgba(34,197,94,0.2)] p-6">
-                <div className="flex items-start space-x-4">
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                    className="flex-shrink-0"
-                  >
-                    <Mail className="h-6 w-6 text-green-400" />
-                  </motion.div>
-                  <div className="flex-1">
-                    <motion.h3
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2, duration: 0.4 }}
-                      className="text-lg font-semibold text-green-300 mb-2"
-                    >
-                      Check Your Email!
-                    </motion.h3>
-                    <motion.p
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3, duration: 0.4 }}
-                      className="text-white/90 text-sm mb-3"
-                    >
-                      We've sent a confirmation link to your email address. Click the link to complete your registration.
-                    </motion.p>
-                    <motion.div
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4, duration: 0.4 }}
-                      className="flex items-center space-x-2 text-yellow-300"
-                    >
-                      <AlertCircle className="h-4 w-4" />
-                      <p className="text-xs">
-                        Don't see the email? Check your spam/junk folder or wait a few minutes.
-                      </p>
-                    </motion.div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Auth Container */}
         <motion.div
@@ -356,3 +286,4 @@ export default function Auth() {
     </div>
   );
 }
+
