@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Auth as SupabaseAuth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -6,8 +7,9 @@ import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Hero } from "@/components/hero";
 import { Button } from "@/components/ui/moving-border";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { Mail, AlertTriangle } from "lucide-react";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ export default function Auth() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);
+  const [showConfirmationMessage, setShowConfirmationMessage] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -127,6 +130,24 @@ export default function Auth() {
     };
   }, [navigate, hasRedirected, toast]);
 
+  // Handle form submission to show confirmation message
+  useEffect(() => {
+    const handleFormSubmit = (event: Event) => {
+      const target = event.target as HTMLFormElement;
+      if (target && target.closest('[data-supabase-auth-ui]')) {
+        const submitButton = target.querySelector('button[type="submit"]');
+        if (submitButton && submitButton.textContent?.toLowerCase().includes('sign up')) {
+          // Show confirmation message when signup form is submitted
+          setShowConfirmationMessage(true);
+          setErrorMessage(""); // Clear any existing error messages
+        }
+      }
+    };
+
+    document.addEventListener('submit', handleFormSubmit);
+    return () => document.removeEventListener('submit', handleFormSubmit);
+  }, []);
+
   if (isInitializing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
@@ -176,6 +197,67 @@ export default function Auth() {
           </motion.p>
         </div>
 
+        {/* Animated Confirmation Message */}
+        <AnimatePresence>
+          {showConfirmationMessage && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
+              transition={{ 
+                type: "spring",
+                stiffness: 400,
+                damping: 25,
+                duration: 0.6
+              }}
+              className="mb-6"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-teal-400/20 blur-xl rounded-2xl animate-pulse" />
+                <div className="relative backdrop-blur-xl bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 rounded-2xl border border-green-400/30 shadow-[0_0_30px_rgba(34,197,94,0.3)] p-6">
+                  <div className="flex items-start space-x-4">
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 10, -10, 0],
+                        scale: [1, 1.1, 1]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                      className="flex-shrink-0"
+                    >
+                      <Mail className="h-6 w-6 text-green-400" />
+                    </motion.div>
+                    <div className="flex-1">
+                      <motion.h3
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-lg font-bold text-green-400 mb-2"
+                      >
+                        Check your email for the confirmation link
+                      </motion.h3>
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="flex items-start space-x-2 text-sm text-green-300/90"
+                      >
+                        <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                        <p>
+                          If you don't see the email in your inbox, please check your spam/junk folder as emails sometimes end up there.
+                        </p>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Auth Container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -195,7 +277,7 @@ export default function Auth() {
           )}
 
           {/* Auth UI */}
-          <div className="p-6">
+          <div className="p-6" data-supabase-auth-ui>
             <SupabaseAuth
               supabaseClient={supabase}
               appearance={{
