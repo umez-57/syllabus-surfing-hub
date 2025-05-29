@@ -10,12 +10,10 @@ import { Button } from "@/components/ui/moving-border";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, AlertTriangle } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   const [errorMessage, setErrorMessage] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
   const [hasRedirected, setHasRedirected] = useState(false);
@@ -124,13 +122,10 @@ export default function Auth() {
             title: "Password Reset Email Sent",
             description: "Please check your email for the password reset link.",
           });
-        } else if (event === "USER_UPDATED") {
-          // Check if this is actually a signup by looking at the user metadata
-          if (session?.user && !session.user.email_confirmed_at) {
-            console.log("Sign up detected via user update");
-            setShowConfirmationMessage(true);
-            setErrorMessage("");
-          }
+        } else if (event === "SIGNED_UP") {
+          console.log("Sign up detected via auth state change");
+          setShowConfirmationMessage(true);
+          setErrorMessage("");
         }
       }
     );
@@ -290,47 +285,40 @@ export default function Auth() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-      {/* Optimized Background Effects - Reduced on mobile */}
-      {!isMobile && <Hero className="absolute inset-0 -z-10" gradient blur />}
+      {/* Background Effects */}
+      <Hero className="absolute inset-0 -z-10" gradient blur />
 
-      {/* Simplified Mobile Background */}
-      {isMobile && (
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-gray-900 to-blue-900/20 -z-10" />
-      )}
-
-      {/* Reduced Animated Background Shapes for mobile */}
+      {/* Animated Background Shapes */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className={`absolute w-[300px] h-[300px] rounded-full bg-purple-500/10 blur-2xl ${isMobile ? '' : 'animate-pulse'} top-[-150px] left-[-100px]`} />
-        <div className={`absolute w-[250px] h-[250px] rounded-full bg-blue-500/10 blur-2xl ${isMobile ? '' : 'animate-pulse'} bottom-[-125px] right-[-75px]`} />
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-3xl animate-pulse top-[-250px] left-[-200px]" />
+        <div className="absolute w-[400px] h-[400px] rounded-full bg-blue-500/20 blur-3xl animate-pulse bottom-[-200px] right-[-150px]" />
       </div>
 
       {/* Main Content */}
       <div className="relative z-10 w-full max-w-md mx-4">
-        {/* Title Section with reduced animations on mobile */}
-        <div className="text-center mb-8">
+        {/* Title Section with 3D Effect */}
+        <div className="text-center mb-8 perspective-1000">
           <motion.div
-            initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: isMobile ? 0.4 : 0.8, ease: "easeOut" }}
-            className="relative"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative transform-gpu"
           >
-            <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-blue-200 mb-2">
+            <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-blue-200 mb-2">
               Welcome to
             </h1>
             <div className="relative">
-              <h1 className="text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500">
+              <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500">
                 VIT AP Study Hub
               </h1>
-              {!isMobile && (
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10 blur-xl" />
-              )}
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10 blur-xl" />
             </div>
           </motion.div>
           <motion.p
-            initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: isMobile ? 0.4 : 0.8, delay: 0.2, ease: "easeOut" }}
-            className="text-base md:text-lg text-gray-300 mt-4"
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            className="text-lg text-gray-300 mt-4"
           >
             Your Gateway to Academic Excellence
           </motion.p>
@@ -340,35 +328,31 @@ export default function Auth() {
         <AnimatePresence>
           {showConfirmationMessage && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: -10 }}
+              initial={{ opacity: 0, scale: 0.8, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -10 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
               transition={{ 
-                type: isMobile ? "tween" : "spring",
-                stiffness: isMobile ? undefined : 500,
-                damping: isMobile ? undefined : 30,
-                duration: isMobile ? 0.3 : 0.6
+                type: "spring",
+                stiffness: 500,
+                damping: 30,
+                duration: 0.6
               }}
               className="mb-6 relative z-20"
             >
               <div className="relative">
-                {/* Reduced background glow on mobile */}
-                {!isMobile && (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-r from-green-400/30 via-emerald-400/30 to-teal-400/30 blur-2xl rounded-2xl animate-pulse" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 blur-xl rounded-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  </>
-                )}
+                {/* Enhanced background glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400/30 via-emerald-400/30 to-teal-400/30 blur-2xl rounded-2xl animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 blur-xl rounded-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
                 
                 {/* Main message container */}
-                <div className={`relative ${isMobile ? 'bg-green-500/10' : 'backdrop-blur-xl bg-gradient-to-r from-green-500/15 via-emerald-500/15 to-teal-500/15'} rounded-2xl border border-green-400/40 ${isMobile ? '' : 'shadow-[0_0_40px_rgba(34,197,94,0.4)]'} p-6`}>
+                <div className="relative backdrop-blur-xl bg-gradient-to-r from-green-500/15 via-emerald-500/15 to-teal-500/15 rounded-2xl border border-green-400/40 shadow-[0_0_40px_rgba(34,197,94,0.4)] p-6">
                   <div className="flex items-start space-x-4">
                     <motion.div
-                      animate={isMobile ? {} : { 
+                      animate={{ 
                         rotate: [0, 15, -15, 0],
                         scale: [1, 1.2, 1]
                       }}
-                      transition={isMobile ? {} : { 
+                      transition={{ 
                         duration: 2.5,
                         repeat: Infinity,
                         repeatType: "reverse",
@@ -394,10 +378,10 @@ export default function Auth() {
                         className="flex items-start space-x-2 text-sm text-green-200/95"
                       >
                         <motion.div
-                          animate={isMobile ? {} : { 
+                          animate={{ 
                             rotate: [0, 10, -10, 0]
                           }}
-                          transition={isMobile ? {} : { 
+                          transition={{ 
                             duration: 3,
                             repeat: Infinity,
                             ease: "easeInOut"
@@ -430,10 +414,10 @@ export default function Auth() {
 
         {/* Auth Container */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: isMobile ? 0.3 : 0.5, delay: 0.3 }}
-          className={`${isMobile ? 'bg-white/5' : 'backdrop-blur-xl bg-white/5'} rounded-2xl border border-white/10 ${isMobile ? '' : 'shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]'} overflow-hidden`}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] overflow-hidden"
         >
           {/* Error Message */}
           {errorMessage && (
@@ -499,13 +483,13 @@ export default function Auth() {
                   button: {
                     borderRadius: "12px",
                     transition: "all 0.2s ease",
-                    backdropFilter: isMobile ? undefined : "blur(10px)",
+                    backdropFilter: "blur(10px)",
                     textTransform: "uppercase",
                     letterSpacing: "1px",
                     fontWeight: "600",
                   },
                   input: {
-                    backdropFilter: isMobile ? undefined : "blur(10px)",
+                    backdropFilter: "blur(10px)",
                   },
                   anchor: {
                     color: "rgb(255, 255, 255, 0.7)",
@@ -522,7 +506,7 @@ export default function Auth() {
                     border: "1px solid rgb(255, 255, 255, 0.2)",
                     borderRadius: "8px",
                     padding: "12px",
-                    backdropFilter: isMobile ? undefined : "blur(10px)",
+                    backdropFilter: "blur(10px)",
                   },
                 },
               }}
