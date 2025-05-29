@@ -109,6 +109,8 @@ export default function Auth() {
       async (event, session) => {
         if (!isMounted) return;
 
+        console.log("Auth state change:", event, session?.user?.email);
+
         if (event === "SIGNED_IN" && session) {
           await handleRedirection(session);
         } else if (event === "SIGNED_OUT") {
@@ -120,6 +122,10 @@ export default function Auth() {
             title: "Password Reset Email Sent",
             description: "Please check your email for the password reset link.",
           });
+        } else if (event === "SIGNED_UP") {
+          console.log("Sign up detected via auth state change");
+          setShowConfirmationMessage(true);
+          setErrorMessage("");
         }
       }
     );
@@ -130,23 +136,144 @@ export default function Auth() {
     };
   }, [navigate, hasRedirected, toast]);
 
-  // Handle form submission to show confirmation message
+  // Enhanced signup detection with multiple methods
   useEffect(() => {
+    let signupDetectionTimer: NodeJS.Timeout;
+    let mutationObserver: MutationObserver;
+
+    const detectSignupSubmission = () => {
+      console.log("Signup submission detected!");
+      setShowConfirmationMessage(true);
+      setErrorMessage("");
+      
+      // Hide any existing Supabase messages
+      const hideSupabaseMessages = () => {
+        const messages = document.querySelectorAll('[data-supabase-auth-ui] .supabase-auth-ui_ui-message');
+        messages.forEach(msg => {
+          const element = msg as HTMLElement;
+          element.style.display = 'none';
+        });
+      };
+      
+      setTimeout(hideSupabaseMessages, 100);
+      setTimeout(hideSupabaseMessages, 500);
+    };
+
+    // Method 1: Form submission detection
     const handleFormSubmit = (event: Event) => {
       const target = event.target as HTMLFormElement;
       if (target && target.closest('[data-supabase-auth-ui]')) {
-        const submitButton = target.querySelector('button[type="submit"]');
-        if (submitButton && submitButton.textContent?.toLowerCase().includes('sign up')) {
-          // Show confirmation message when signup form is submitted
-          setShowConfirmationMessage(true);
-          setErrorMessage(""); // Clear any existing error messages
+        const formData = new FormData(target);
+        const email = formData.get('email');
+        const password = formData.get('password');
+        
+        // Check if this looks like a signup (has email and password)
+        if (email && password) {
+          const submitButton = target.querySelector('button[type="submit"]');
+          const buttonText = submitButton?.textContent?.toLowerCase() || '';
+          
+          console.log("Form submit detected, button text:", buttonText);
+          
+          // Detect signup based on button text or form action
+          if (buttonText.includes('sign up') || buttonText.includes('create') || buttonText.includes('register')) {
+            signupDetectionTimer = setTimeout(detectSignupSubmission, 500);
+          }
         }
       }
     };
 
+    // Method 2: Button click detection
+    const handleButtonClick = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target && target.closest('[data-supabase-auth-ui]')) {
+        const buttonText = target.textContent?.toLowerCase() || '';
+        
+        console.log("Button click detected, text:", buttonText);
+        
+        if (buttonText.includes('sign up') || buttonText.includes('create') || buttonText.includes('register')) {
+          // Check if form has valid data
+          const form = target.closest('form');
+          if (form) {
+            const formData = new FormData(form);
+            const email = formData.get('email');
+            const password = formData.get('password');
+            
+            if (email && password) {
+              signupDetectionTimer = setTimeout(detectSignupSubmission, 800);
+            }
+          }
+        }
+      }
+    };
+
+    // Method 3: DOM mutation observer for Supabase messages
+    const setupMutationObserver = () => {
+      const authContainer = document.querySelector('[data-supabase-auth-ui]');
+      if (!authContainer) return;
+
+      mutationObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          mutation.addedNodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as Element;
+              
+              // Check for Supabase confirmation messages
+              if (element.classList?.contains('supabase-auth-ui_ui-message') || 
+                  element.querySelector?.('.supabase-auth-ui_ui-message')) {
+                
+                const messageText = element.textContent?.toLowerCase() || '';
+                console.log("Supabase message detected:", messageText);
+                
+                if (messageText.includes('check your email') || 
+                    messageText.includes('confirmation') ||
+                    messageText.includes('verify')) {
+                  
+                  console.log("Email confirmation message detected, showing custom message");
+                  detectSignupSubmission();
+                  
+                  // Hide the Supabase message
+                  setTimeout(() => {
+                    if (element.parentNode) {
+                      (element as HTMLElement).style.display = 'none';
+                    }
+                  }, 100);
+                }
+              }
+            }
+          });
+        });
+      });
+
+      mutationObserver.observe(authContainer, {
+        childList: true,
+        subtree: true
+      });
+    };
+
+    // Initialize detection methods
     document.addEventListener('submit', handleFormSubmit);
-    return () => document.removeEventListener('submit', handleFormSubmit);
+    document.addEventListener('click', handleButtonClick);
+    
+    // Setup mutation observer after a short delay to ensure Auth UI is rendered
+    setTimeout(setupMutationObserver, 1000);
+
+    return () => {
+      document.removeEventListener('submit', handleFormSubmit);
+      document.removeEventListener('click', handleButtonClick);
+      if (signupDetectionTimer) clearTimeout(signupDetectionTimer);
+      if (mutationObserver) mutationObserver.disconnect();
+    };
   }, []);
+
+  // Auto-hide confirmation message after 30 seconds
+  useEffect(() => {
+    if (showConfirmationMessage) {
+      const timer = setTimeout(() => {
+        setShowConfirmationMessage(false);
+      }, 30000);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfirmationMessage]);
 
   if (isInitializing) {
     return (
@@ -197,7 +324,7 @@ export default function Auth() {
           </motion.p>
         </div>
 
-        {/* Animated Confirmation Message */}
+        {/* Enhanced Animated Confirmation Message */}
         <AnimatePresence>
           {showConfirmationMessage && (
             <motion.div
@@ -206,50 +333,77 @@ export default function Auth() {
               exit={{ opacity: 0, scale: 0.8, y: -20 }}
               transition={{ 
                 type: "spring",
-                stiffness: 400,
-                damping: 25,
+                stiffness: 500,
+                damping: 30,
                 duration: 0.6
               }}
-              className="mb-6"
+              className="mb-6 relative z-20"
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-teal-400/20 blur-xl rounded-2xl animate-pulse" />
-                <div className="relative backdrop-blur-xl bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 rounded-2xl border border-green-400/30 shadow-[0_0_30px_rgba(34,197,94,0.3)] p-6">
+                {/* Enhanced background glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400/30 via-emerald-400/30 to-teal-400/30 blur-2xl rounded-2xl animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-teal-500/10 blur-xl rounded-2xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+                
+                {/* Main message container */}
+                <div className="relative backdrop-blur-xl bg-gradient-to-r from-green-500/15 via-emerald-500/15 to-teal-500/15 rounded-2xl border border-green-400/40 shadow-[0_0_40px_rgba(34,197,94,0.4)] p-6">
                   <div className="flex items-start space-x-4">
                     <motion.div
                       animate={{ 
-                        rotate: [0, 10, -10, 0],
-                        scale: [1, 1.1, 1]
+                        rotate: [0, 15, -15, 0],
+                        scale: [1, 1.2, 1]
                       }}
                       transition={{ 
-                        duration: 2,
+                        duration: 2.5,
                         repeat: Infinity,
-                        repeatType: "reverse"
+                        repeatType: "reverse",
+                        ease: "easeInOut"
                       }}
                       className="flex-shrink-0"
                     >
-                      <Mail className="h-6 w-6 text-green-400" />
+                      <Mail className="h-7 w-7 text-green-400 drop-shadow-lg" />
                     </motion.div>
                     <div className="flex-1">
                       <motion.h3
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-lg font-bold text-green-400 mb-2"
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                        className="text-xl font-bold text-green-300 mb-3 drop-shadow-lg"
                       >
                         Check your email for the confirmation link
                       </motion.h3>
                       <motion.div
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="flex items-start space-x-2 text-sm text-green-300/90"
+                        transition={{ delay: 0.5, duration: 0.5 }}
+                        className="flex items-start space-x-2 text-sm text-green-200/95"
                       >
-                        <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-                        <p>
-                          If you don't see the email in your inbox, please check your spam/junk folder as emails sometimes end up there.
+                        <motion.div
+                          animate={{ 
+                            rotate: [0, 10, -10, 0]
+                          }}
+                          transition={{ 
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5 drop-shadow-lg" />
+                        </motion.div>
+                        <p className="leading-relaxed">
+                          If you don't see the email in your inbox, please check your <strong className="text-yellow-300">spam/junk folder</strong> as emails sometimes end up there.
                         </p>
-                      </motion.div>
+                      </div>
+                      
+                      {/* Dismiss button */}
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7, duration: 0.3 }}
+                        onClick={() => setShowConfirmationMessage(false)}
+                        className="mt-4 text-xs text-green-300/70 hover:text-green-300 transition-colors underline decoration-green-400/50 hover:decoration-green-400"
+                      >
+                        Dismiss message
+                      </motion.button>
                     </div>
                   </div>
                 </div>
