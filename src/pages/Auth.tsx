@@ -392,7 +392,7 @@ export default function Auth() {
                         <p className="leading-relaxed">
                           If you don't see the email in your inbox, please check your <strong className="text-yellow-300">spam/junk folder</strong> as emails sometimes end up there.
                         </p>
-                      </div>
+                      </motion.div>
                       
                       {/* Dismiss button */}
                       <motion.button
