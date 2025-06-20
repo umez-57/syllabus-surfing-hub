@@ -387,6 +387,15 @@
     animation: neo-drift 12s linear infinite;
   }
 
+  /* Shared Card Highlight Effect - Simple Glowing Border */
+  .highlight-card-glow {
+    border-color: var(--monster-accent) !important;
+    box-shadow: 
+      0 0 20px var(--monster-accent),
+      0 0 40px var(--monster-accent),
+      8px 8px 0px var(--monster-black) !important;
+  }
+
   /* Batch grid for responsive layout */
   .batch-grid {
     display: grid;

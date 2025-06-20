@@ -269,99 +269,98 @@ export default function Auth() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden py-4">
       {/* Animated Background with Glassmorphic Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-cyan-900/30" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.15),transparent_50%)]" />
       
-      {/* Floating Glassmorphic Shapes */}
-      <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full backdrop-blur-xl border border-white/10 floating-shape opacity-60" />
-      <div className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-lg backdrop-blur-xl border border-white/10 floating-shape opacity-60" />
-      <div className="absolute bottom-32 left-40 w-28 h-28 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl backdrop-blur-xl border border-white/10 floating-shape opacity-60" />
-      <div className="absolute bottom-20 right-20 w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-full backdrop-blur-xl border border-white/10 floating-shape opacity-60" />
+      {/* Floating Glassmorphic Shapes - Smaller and fewer */}
+      <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full backdrop-blur-xl border border-white/10 floating-shape opacity-60" />
+      <div className="absolute top-20 right-20 w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-lg backdrop-blur-xl border border-white/10 floating-shape opacity-60" />
+      <div className="absolute bottom-20 left-20 w-18 h-18 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl backdrop-blur-xl border border-white/10 floating-shape opacity-60" />
 
       {/* Main Content */}
       <div className="relative z-10 w-full max-w-md mx-4">
-        {/* Enhanced Title Section */}
-        <div className="text-center mb-8 perspective-1000">
+        {/* Enhanced Title Section - Reduced spacing */}
+        <div className="text-center mb-6 perspective-1000">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative transform-gpu"
           >
-            {/* Badge */}
+            {/* Badge - Smaller */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 mb-6 backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl text-white font-mono font-bold uppercase tracking-wider text-sm"
+              className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl text-white font-mono font-bold uppercase tracking-wider text-xs"
             >
-              <Shield className="w-4 h-4 text-purple-400" />
+              <Shield className="w-3 h-3 text-purple-400" />
               <span>Secure Access Portal</span>
             </motion.div>
 
-            {/* Main Heading with Enhanced Typography */}
+            {/* Main Heading - Smaller */}
             <motion.h1 
               initial={{ opacity: 0, y: 30, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
-              className="relative mb-6"
+              className="relative mb-4"
             >
-              {/* Welcome Text */}
-              <div className="text-2xl md:text-3xl font-light mb-2 tracking-wide">
+              {/* Welcome Text - Smaller */}
+              <div className="text-lg md:text-xl font-light mb-1 tracking-wide">
                 <span className="bg-gradient-to-r from-white/90 to-gray-300/90 bg-clip-text text-transparent font-mono">
                   Welcome to
                 </span>
               </div>
               
-              {/* Main Brand Text with Enhanced Styling */}
+              {/* Main Brand Text - Smaller */}
               <div className="relative">
                 {/* Glow Effect */}
-                <div className="absolute inset-0 text-4xl md:text-5xl font-black tracking-tight blur-sm">
+                <div className="absolute inset-0 text-2xl md:text-3xl font-black tracking-tight blur-sm">
                   <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
                     VIT AP STUDY HUB
                   </span>
                 </div>
                 
                 {/* Main Text */}
-                <div className="relative text-4xl md:text-5xl font-black tracking-tight">
+                <div className="relative text-2xl md:text-3xl font-black tracking-tight">
                   <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent drop-shadow-2xl">
                     VIT AP STUDY HUB
                   </span>
                 </div>
                 
-                {/* Animated Underline */}
+                {/* Animated Underline - Smaller */}
                 <motion.div 
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
                   transition={{ delay: 1.2, duration: 1.5, ease: "easeInOut" }}
-                  className="h-1 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full mt-4 mx-auto"
+                  className="h-0.5 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full mt-2 mx-auto"
                 />
               </div>
             </motion.h1>
 
-            {/* Subtitle with Enhanced Styling */}
+            {/* Subtitle - Smaller */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
               className="relative"
             >
-              <div className="text-lg md:text-xl font-medium mb-2">
+              <div className="text-sm md:text-base font-medium mb-1">
                 <span className="bg-gradient-to-r from-purple-300 to-cyan-300 bg-clip-text text-transparent font-mono">
                   Your Gateway to
                 </span>
               </div>
-              <div className="text-xl md:text-2xl font-bold">
+              <div className="text-base md:text-lg font-bold">
                 <span className="bg-gradient-to-r from-yellow-300 via-orange-300 to-pink-300 bg-clip-text text-transparent">
                   Academic Excellence
                 </span>
               </div>
             </motion.div>
 
-            {/* Floating Icons */}
-            <div className="absolute -top-4 -right-4">
+            {/* Floating Icons - Smaller */}
+            <div className="absolute -top-2 -right-2">
               <motion.div
                 animate={{ 
                   rotate: [0, 15, -15, 0],
@@ -373,11 +372,11 @@ export default function Auth() {
                   ease: "easeInOut"
                 }}
               >
-                <Sparkles className="w-6 h-6 text-yellow-400" />
+                <Sparkles className="w-4 h-4 text-yellow-400" />
               </motion.div>
             </div>
             
-            <div className="absolute -bottom-2 -left-4">
+            <div className="absolute -bottom-1 -left-2">
               <motion.div
                 animate={{ 
                   rotate: [0, -10, 10, 0],
@@ -389,13 +388,13 @@ export default function Auth() {
                   ease: "easeInOut"
                 }}
               >
-                <Zap className="w-5 h-5 text-cyan-400" />
+                <Zap className="w-3 h-3 text-cyan-400" />
               </motion.div>
             </div>
           </motion.div>
         </div>
 
-        {/* Enhanced Animated Confirmation Message */}
+        {/* Enhanced Animated Confirmation Message - Smaller */}
         <AnimatePresence>
           {showConfirmationMessage && (
             <motion.div
@@ -408,12 +407,12 @@ export default function Auth() {
                 damping: 30,
                 duration: 0.6
               }}
-              className="mb-6 relative z-20"
+              className="mb-4 relative z-20"
             >
               <div className="relative">
-                {/* Main message container */}
-                <div className="relative backdrop-blur-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 rounded-2xl p-6">
-                  <div className="flex items-start space-x-4">
+                {/* Main message container - Smaller padding */}
+                <div className="relative backdrop-blur-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 rounded-2xl p-4">
+                  <div className="flex items-start space-x-3">
                     <motion.div
                       animate={{ 
                         rotate: [0, 15, -15, 0],
@@ -427,14 +426,14 @@ export default function Auth() {
                       }}
                       className="flex-shrink-0"
                     >
-                      <Mail className="h-7 w-7 text-emerald-300" />
+                      <Mail className="h-5 w-5 text-emerald-300" />
                     </motion.div>
                     <div className="flex-1">
                       <motion.h3
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3, duration: 0.5 }}
-                        className="text-xl font-bold mb-3 text-white"
+                        className="text-lg font-bold mb-2 text-white"
                       >
                         Check your email for the confirmation link
                       </motion.h3>
@@ -442,7 +441,7 @@ export default function Auth() {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5, duration: 0.5 }}
-                        className="flex items-start space-x-2 text-sm font-mono"
+                        className="flex items-start space-x-2 text-xs font-mono"
                       >
                         <motion.div
                           animate={{ 
@@ -454,7 +453,7 @@ export default function Auth() {
                             ease: "easeInOut"
                           }}
                         >
-                          <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                          <AlertTriangle className="h-3 w-3 text-yellow-400 flex-shrink-0 mt-0.5" />
                         </motion.div>
                         <p className="leading-relaxed text-white/90">
                           If you don't see the email in your inbox, please check your <strong>spam/junk folder</strong> as emails sometimes end up there.
@@ -467,7 +466,7 @@ export default function Auth() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.7, duration: 0.3 }}
                         onClick={() => setShowConfirmationMessage(false)}
-                        className="mt-4 text-xs text-white/70 hover:text-white transition-colors underline font-mono"
+                        className="mt-2 text-xs text-white/70 hover:text-white transition-colors underline font-mono"
                       >
                         Dismiss message
                       </motion.button>
@@ -479,26 +478,26 @@ export default function Auth() {
           )}
         </AnimatePresence>
 
-        {/* Enhanced Auth Container */}
+        {/* Enhanced Auth Container - Smaller */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="backdrop-blur-xl bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border border-white/10 rounded-3xl shadow-2xl"
+          className="backdrop-blur-xl bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border border-white/10 rounded-2xl shadow-2xl"
         >
           {/* Error Message */}
           {errorMessage && (
-            <div className="p-4">
+            <div className="p-3">
               <Alert variant="destructive" className="bg-red-500/20 border-red-400/30 backdrop-blur-xl rounded-2xl">
-                <AlertDescription className="text-white">
+                <AlertDescription className="text-white text-sm">
                   {errorMessage}
                 </AlertDescription>
               </Alert>
             </div>
           )}
 
-          {/* Auth UI */}
-          <div className="p-6" data-supabase-auth-ui>
+          {/* Auth UI - Smaller padding */}
+          <div className="p-4" data-supabase-auth-ui>
             <SupabaseAuth
               supabaseClient={supabase}
               appearance={{
@@ -526,29 +525,29 @@ export default function Auth() {
                       messageBorder: "rgba(255, 255, 255, 0.1)",
                     },
                     space: {
-                      buttonPadding: "16px 24px",
-                      inputPadding: "16px",
+                      buttonPadding: "12px 20px", // Reduced from 16px 24px
+                      inputPadding: "12px", // Reduced from 16px
                     },
                     borderWidths: {
                       buttonBorderWidth: "2px",
                       inputBorderWidth: "2px",
                     },
                     radii: {
-                      borderRadiusButton: "12px",
-                      buttonBorderRadius: "12px",
-                      inputBorderRadius: "12px",
+                      borderRadiusButton: "10px", // Reduced from 12px
+                      buttonBorderRadius: "10px",
+                      inputBorderRadius: "10px",
                     },
                     fontSizes: {
-                      baseBodySize: "16px",
-                      baseInputSize: "16px",
-                      baseLabelSize: "14px",
-                      baseButtonSize: "16px",
+                      baseBodySize: "14px", // Reduced from 16px
+                      baseInputSize: "14px",
+                      baseLabelSize: "13px", // Reduced from 14px
+                      baseButtonSize: "14px",
                     },
                   },
                 },
                 style: {
                   button: {
-                    borderRadius: "12px",
+                    borderRadius: "10px",
                     transition: "all 0.3s ease",
                     textTransform: "none",
                     letterSpacing: "0.5px",
@@ -586,8 +585,8 @@ export default function Auth() {
                   },
                   label: {
                     color: "white",
-                    fontSize: "14px",
-                    marginBottom: "8px",
+                    fontSize: "13px", // Reduced from 14px
+                    marginBottom: "6px", // Reduced from 8px
                     fontFamily: "system-ui, -apple-system, sans-serif",
                     fontWeight: "600",
                     letterSpacing: "0.5px",
@@ -596,10 +595,11 @@ export default function Auth() {
                     color: "white",
                     backgroundColor: "rgba(0, 0, 0, 0.3)",
                     border: "2px solid rgba(255, 255, 255, 0.1)",
-                    borderRadius: "12px",
-                    padding: "12px",
+                    borderRadius: "10px",
+                    padding: "10px", // Reduced from 12px
                     fontFamily: "system-ui, -apple-system, sans-serif",
                     backdropFilter: "blur(10px)",
+                    fontSize: "13px", // Added smaller font size
                   },
                 },
               }}

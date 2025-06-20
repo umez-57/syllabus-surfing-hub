@@ -89,7 +89,7 @@ export function SyllabusCard({
             neo-border neo-shadow
             transition-all duration-300
             hover:translate-x-2 hover:translate-y-2 hover:shadow-[6px_6px_0px_#000]
-            ${highlight ? 'bg-white/5 backdrop-blur-xl text-white border-purple-400/30' : 'bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 backdrop-blur-xl text-white'}
+            ${highlight ? 'bg-white/5 backdrop-blur-xl text-white highlight-card-glow' : 'bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 backdrop-blur-xl text-white'}
           `}
         >
           {/* Content */}

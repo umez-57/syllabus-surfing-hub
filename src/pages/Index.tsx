@@ -201,9 +201,9 @@ export default function Index() {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
               {[
-                { icon: BookOpen, label: "Syllabi", value: "500+", color: "from-cyan-400 to-blue-500" },
-                { icon: Users, label: "Students", value: "10K+", color: "from-purple-400 to-pink-500" },
-                { icon: Download, label: "Downloads", value: "50K+", color: "from-emerald-400 to-teal-500" },
+                { icon: BookOpen, label: "Syllabi", value: "180+", color: "from-cyan-400 to-blue-500" },
+                { icon: Users, label: "Students", value: "5K+", color: "from-purple-400 to-pink-500" },
+                { icon: Download, label: "Shared", value: "1K+", color: "from-emerald-400 to-teal-500" },
                 { icon: Star, label: "Rating", value: "4.9", color: "from-yellow-400 to-orange-500" }
               ].map((stat, index) => (
                 <motion.div
